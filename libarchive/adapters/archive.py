@@ -60,13 +60,31 @@ class ArchiveEntry(object):
         return _archive_entry_pathname(self.__entry_res)
 
 
+_FILTER_MAP = {
+        'all': _archive_read_support_filter_all,
+    }
+
+_FORMAT_MAP = {
+        'all': _archive_read_support_format_all,
+    }
+
+
 class Archive(object):
-    def __init__(self, filepath, block_size=10240):
+    def __init__(self, 
+                 filepath, 
+                 block_size=10240, 
+                 filter_name='all', 
+                 format_name='all'):
         self.__archive_res = None
         
         archive_res = _archive_read_new()
-        _archive_read_support_filter_all(archive_res)
-        _archive_read_support_format_all(archive_res)
+        
+        _filter = _FILTER_MAP[filter_name]        
+        _filter(archive_res)
+        
+        _format = _FORMAT_MAP[format_name]
+        _format(archive_res)
+        
         _archive_read_open_filename(archive_res, filepath, block_size)
 
         self.__archive_res = archive_res

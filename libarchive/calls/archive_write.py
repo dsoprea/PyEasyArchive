@@ -10,6 +10,10 @@ def _check_zero_success(value):
     
     return value
 
+c_archive_write_new = libarchive.archive_write_new
+c_archive_write_new.argtypes = []
+c_archive_write_new.restype = c_void_p
+
 c_archive_write_disk_new = libarchive.archive_write_disk_new
 c_archive_write_disk_new.argtypes = []
 c_archive_write_disk_new.restype = c_void_p
@@ -80,3 +84,18 @@ c_archive_write_data = libarchive.archive_write_data
 c_archive_write_data.argtypes = [c_void_p, c_void_p, c_size_t]
 c_archive_write_data.restype = c_ssize_t
 
+c_archive_read_disk_set_standard_lookup = \
+    libarchive.archive_read_disk_set_standard_lookup
+c_archive_read_disk_set_standard_lookup.argtypes = [c_void_p]
+c_archive_read_disk_set_standard_lookup.restype = _check_zero_success
+
+c_archive_write_open_memory = libarchive.archive_write_open_memory
+c_archive_write_open_memory.argtypes = [c_void_p, 
+                                        c_void_p, 
+                                        c_size_t, 
+                                        POINTER(c_size_t)]
+c_archive_write_open_memory.restype = _check_zero_success
+
+c_archive_write_open_fd = libarchive.archive_write_open_fd
+c_archive_write_open_fd.argtypes = [c_void_p, c_int]
+c_archive_write_open_fd.restype = _check_zero_success

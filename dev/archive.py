@@ -7,11 +7,10 @@ import os
 import logging
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
 
 # create formatter
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -30,6 +29,11 @@ import libarchive
 #    for e in reader:
 #        print("> %s" % (e))
 
-for entry in libarchive.pour('test.7z'):
-    print("Wrote: %s" % (entry))
+#for entry in libarchive.pour('test.7z'):
+#    print("Wrote: %s" % (entry))
 
+for entry in libarchive.create(
+                '7z', 
+                ['/etc/profile'], 
+                'create.7z'):
+    print("Adding: %s" % (entry))

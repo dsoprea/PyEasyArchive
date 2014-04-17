@@ -74,3 +74,6 @@ c_archive_read_disk_descend = libarchive.archive_read_disk_descend
 c_archive_read_disk_descend.argtypes = [c_void_p]
 c_archive_read_disk_descend.restype = _check_zero_success
 
+c_archive_read_close = libarchive.archive_read_close
+c_archive_read_close.argtypes = [c_void_p]
+c_archive_read_close.restype = _check_zero_success

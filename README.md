@@ -19,8 +19,9 @@ Task List
 |:----:| ---- |
 | X | Enumerate entries |
 | X | Extract entries to disk |
-|   | Populate archives from disk |
+| X | Populate archives from disk |
 |   | Populate archives from memory |
+|   | Populate archives into memory |
 |   | Fill-out the entry object's information/accessors |
 
 
@@ -51,4 +52,14 @@ for state in libarchive.pour('test.7z'):
 
     # (The state evaluates to a filename.)
     print("Writing: %s" % (state))
+```
+
+To build an archive from a collection of files (omit the target for STDOUT):
+
+```python
+for entry in libarchive.create(
+                '7z', 
+                ['/aa/bb', '/cc/dd'], 
+                'create.7z'):
+    print("Adding: %s" % (entry))
 ```

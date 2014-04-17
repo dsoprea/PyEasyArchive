@@ -139,6 +139,13 @@ def _archive_read_disk_descend(archive):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
+def _archive_read_close(archive):
+    try:
+        return libarchive.calls.archive_read.c_archive_read_close(archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
+
 _READ_FILTER_MAP = {
         'all': _archive_read_support_filter_all,
     }
@@ -239,7 +246,9 @@ def pour(filepath, flags=0, *args, **kwargs):
                 if r == libarchive.constants.archive.ARCHIVE_EOF:
                     break
                 elif r != libarchive.constants.archive.ARCHIVE_OK:
-                    raise ValueError("Pour failed: %d" % (r))
+                    message = c_archive_error_string(state.reader_res)
+                    raise libarchive.exception.ArchiveError(
+                            "Pour failed: (%d) [%s]" % (r, message))
 
                 r = libarchive.calls.archive_write.c_archive_write_data_block(
                         ext, 

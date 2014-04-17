@@ -7,10 +7,6 @@ def _archive_entry_pathname(entry):
 
     return filepath
 
-# TODO(dustin): Still unimplemented. This should probably be called from a
-#               reading or writing context when needed, or we won't be able to 
-#               create the entry-object, below, while equipping it with that 
-#               archive resource (like we sometimes depend on).
 def archive_entry_new():
     entry = libarchive.calls.archive_entry.c_archive_entry_new()
     if entry is None:
@@ -52,4 +48,3 @@ class ArchiveEntry(object):
     @property
     def sourcepath(self):
         return _archive_entry_sourcepath(self.__entry_res)
-

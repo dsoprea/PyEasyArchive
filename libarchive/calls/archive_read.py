@@ -22,6 +22,11 @@ c_archive_read_support_format_all = libarchive.archive_read_support_format_all
 c_archive_read_support_format_all.argtypes = [c_void_p]
 c_archive_read_support_format_all.restype = _check_zero_success
 
+c_archive_read_support_format_7zip = \
+    libarchive.archive_read_support_format_7zip
+c_archive_read_support_format_7zip.argtypes = [c_void_p]
+c_archive_read_support_format_7zip.restype = _check_zero_success
+
 c_archive_read_open_filename = libarchive.archive_read_open_filename
 c_archive_read_open_filename.argtypes = [c_void_p, c_char_p, c_size_t]
 c_archive_read_open_filename.restype = _check_zero_success
@@ -30,10 +35,6 @@ c_archive_read_next_header = libarchive.archive_read_next_header
 c_archive_read_next_header.argtypes = [c_void_p, POINTER(c_void_p)]
 c_archive_read_next_header.restype = c_int
 
-c_archive_entry_pathname = libarchive.archive_entry_pathname
-c_archive_entry_pathname.argtypes = [c_void_p]
-c_archive_entry_pathname.restype = c_char_p
-
 c_archive_read_data_skip = libarchive.archive_read_data_skip
 c_archive_read_data_skip.argtypes = [c_void_p]
 c_archive_read_data_skip.restype = _check_zero_success
@@ -41,4 +42,12 @@ c_archive_read_data_skip.restype = _check_zero_success
 c_archive_read_free = libarchive.archive_read_free
 c_archive_read_free.argtypes = [c_void_p]
 c_archive_read_free.restype = _check_zero_success
+
+c_archive_read_data_block = libarchive.archive_read_data_block
+c_archive_read_data_block.argtypes = [
+    c_void_p, 
+    POINTER(c_void_p), 
+    POINTER(c_size_t), 
+    POINTER(c_longlong)]
+c_archive_read_data_block.restype = c_int
 

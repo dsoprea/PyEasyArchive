@@ -1,1 +1,2 @@
-from libarchive.adapters.archive import Archive, ArchiveEntry
+from libarchive.adapters.archive_read import reader, pour
+

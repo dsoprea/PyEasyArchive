@@ -5,7 +5,10 @@ sys.path.insert(0, '..')
 
 import libarchive
 
-a = libarchive.Archive('test.7z')
-for e in a.read():
-    print("> %s" % (e))
+#with libarchive.reader('test.7z') as reader:
+#    for e in reader:
+#        print("> %s" % (e))
+
+for entry in libarchive.pour('test.7z'):
+    print("Wrote: %s" % (entry))
 

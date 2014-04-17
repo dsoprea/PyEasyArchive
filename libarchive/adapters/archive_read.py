@@ -2,12 +2,12 @@ import contextlib
 import ctypes
 import logging
 
+import libarchive.constants.archive
+import libarchive.exception
 import libarchive.calls.archive_read
 import libarchive.calls.archive_write
 import libarchive.calls.archive_general
 import libarchive.adapters.archive_entry
-import libarchive.constants.archive
-import libarchive.exception
 
 from libarchive.calls.archive_general import c_archive_error_string
 
@@ -158,7 +158,11 @@ def _set_read_context(archive_res, filter_name, format_name):
     _logger.debug("Format [%s] returned: %d", _format, r)
 
 @contextlib.contextmanager
-def reader(filepath, block_size=10240, filter_name='all', format_name='all'):
+def reader(filepath, 
+           entry_cls=libarchive.adapters.archive_entry.ArchiveEntry, 
+           block_size=10240, 
+           filter_name='all', 
+           format_name='all'):
     """Get a generator with which to enumerate the entries."""
 
     _logger.info("Reading through archive: %s", filepath)
@@ -178,35 +182,47 @@ def reader(filepath, block_size=10240, filter_name='all', format_name='all'):
                     if entry_res is None:
                         break
 
-                    yield libarchive.adapters.archive_entry.ArchiveEntry(
-                            archive_res, 
-                            entry_res)
-
+                    yield entry_cls(archive_res, entry_res)
                     _archive_read_data_skip(archive_res)
 
         yield it()
     finally:
         _archive_read_free(archive_res)
 
-def pour(filepath, 
-         flags=0, 
-         *args, 
-         **kwargs):
+
+class ArchiveEntryItState(libarchive.adapters.archive_entry.ArchiveEntry):
+    def __init__(self, *args, **kwargs):
+        super(ArchiveEntryItState, self).__init__(*args, **kwargs)
+        self.__selected = True
+
+    def set_selected(self, selected=True):
+        self.__selected = selected
+
+    @property
+    def selected(self):
+        return self.__selected
+
+def pour(filepath, flags=0, *args, **kwargs):
     """Write the archive out to the current directory."""
 
     _logger.info("Pouring archive: %s", filepath)
 
-    with reader(filepath, *args, **kwargs) as r:
+    with reader(filepath, *args, entry_cls=ArchiveEntryItState, **kwargs) as r:
         ext = libarchive.calls.archive_write.c_archive_write_disk_new()
         libarchive.calls.archive_write.c_archive_write_disk_set_options(
                 ext,
                 flags
             )
 
-        for entry in r:
+        for state in r:
+            yield state
+
+            if state.selected is False:
+                continue
+
             r = libarchive.calls.archive_write.c_archive_write_header(
                     ext, 
-                    entry.entry_res)
+                    state.entry_res)
 
             buff = ctypes.c_void_p()
             size = ctypes.c_size_t()
@@ -215,7 +231,7 @@ def pour(filepath,
             while 1:
                 r = libarchive.calls.archive_read.\
                         c_archive_read_data_block(
-                            entry.reader_res, 
+                            state.reader_res, 
                             ctypes.byref(buff), 
                             ctypes.byref(size), 
                             ctypes.byref(offset))
@@ -225,18 +241,11 @@ def pour(filepath,
                 elif r != libarchive.constants.archive.ARCHIVE_OK:
                     raise ValueError("Pour failed: %d" % (r))
 
-# TODO(dustin): We might want to be able to allow the caller to skip files.
-
-                r = libarchive.calls.archive_write.\
-                        libarchive.calls.archive_write.\
-                            c_archive_write_data_block(
-                                ext, 
-                                buff, 
-                                size, 
-                                offset)
+                r = libarchive.calls.archive_write.c_archive_write_data_block(
+                        ext, 
+                        buff, 
+                        size, 
+                        offset)
 
             r = libarchive.calls.archive_write.\
                     c_archive_write_finish_entry(ext)
-
-            yield entry
-

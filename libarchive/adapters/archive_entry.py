@@ -30,8 +30,9 @@ class ArchiveEntry(object):
         self.__reader_res = reader_res
         self.__entry_res = entry_res
 
-    def __del__(self):
-        _archive_entry_free(self.__entry_res)
+# TODO(dustin): Not necessary, at least during the read.
+#    def __del__(self):
+#        _archive_entry_free(self.__entry_res)
 
     def __str__(self):
         return self.pathname

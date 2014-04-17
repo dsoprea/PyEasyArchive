@@ -22,14 +22,14 @@ ch.setFormatter(formatter)
 # add ch to logger
 logger.addHandler(ch)
 
-os.environ['DYLD_LIBRARY_PATH'] = '/usr/local/Cellar/libarchive/3.1.2/lib'
+os.environ['DYLD_LIBRARY_PATH'] = '/Users/dustin/build/libarchive/build/libarchive'
 
 import libarchive
 
-with libarchive.reader('test.7z') as reader:
-    for e in reader:
-        print("> %s" % (e))
+#with libarchive.reader('test.7z') as reader:
+#    for e in reader:
+#        print("> %s" % (e))
 
-#for entry in libarchive.pour('test.7z'):
-#    print("Wrote: %s" % (entry))
+for entry in libarchive.pour('test.7z'):
+    print("Wrote: %s" % (entry))
 

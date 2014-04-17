@@ -34,6 +34,7 @@ import libarchive
 
 with libarchive.reader('test.7z') as reader:
     for e in reader:
+        # (The entry evaluates to a filename.)
         print("> %s" % (e))
 ```
 
@@ -43,7 +44,11 @@ Unix-based extraction):
 ```python
 import libarchive
 
-for entry in libarchive.pour('test.7z'):
-    print("Wrote: %s" % (entry))
-```
+for state in libarchive.pour('test.7z'):
+    if state.pathname == 'dont/write/me':
+        state.set_selected(False)
+        continue
 
+    # (The state evaluates to a filename.)
+    print("Writing: %s" % (state))
+```

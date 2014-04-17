@@ -1,10 +1,14 @@
 import contextlib
 import ctypes
+import logging
 
 import libarchive.calls.archive_read
 import libarchive.calls.archive_write
+import libarchive.calls.archive_general
 import libarchive.adapters.archive_entry
 import libarchive.constants.archive
+
+_logger = logging.getLogger(__name__)
 
 def _archive_read_new():
     archive = libarchive.calls.archive_read.c_archive_read_new()
@@ -102,20 +106,27 @@ _READ_FORMAT_MAP = {
 
 def _set_read_context(archive_res, filter_name, format_name):
     _filter = _READ_FILTER_MAP[filter_name]        
-    _filter(archive_res)
-    
+    r = _filter(archive_res)
+    _logger.debug("Filter [%s] returned: %d", _filter, r)
+
     _format = _READ_FORMAT_MAP[format_name]
-    _format(archive_res)
+    r = _format(archive_res)
+    _logger.debug("Format [%s] returned: %d", _format, r)
 
 @contextlib.contextmanager
 def reader(filepath, block_size=10240, filter_name='all', format_name='all'):
     """Get a generator with which to enumerate the entries."""
 
+    _logger.info("Reading through archive: %s", filepath)
+
     archive_res = _archive_read_new()
+    _logger.debug("Created archive resource (archive_read_new).")
 
     try:
-        _set_read_context(archive_res, filter_name, format_name)
-        _archive_read_open_filename(archive_res, filepath, block_size)
+        r = _set_read_context(archive_res, filter_name, format_name)
+
+        r = _archive_read_open_filename(archive_res, filepath, block_size)
+        _logger.debug("archive_read_open_filename: (%d) %s", r, filepath)
 
         def it():
             while 1:
@@ -138,6 +149,8 @@ def pour(filepath,
          *args, 
          **kwargs):
     """Write the archive out to the current directory."""
+
+    _logger.info("Pouring archive: %s", filepath)
 
     with reader(filepath, *args, **kwargs) as r:
         ext = libarchive.calls.archive_write.c_archive_write_disk_new()

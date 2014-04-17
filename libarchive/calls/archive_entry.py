@@ -14,3 +14,15 @@ c_archive_entry_pathname = libarchive.archive_entry_pathname
 c_archive_entry_pathname.argtypes = [c_void_p]
 c_archive_entry_pathname.restype = c_char_p
 
+c_archive_entry_new = libarchive.archive_entry_new
+c_archive_entry_new.argtypes = []
+c_archive_entry_new.restype = c_void_p
+
+c_archive_entry_sourcepath = libarchive.archive_entry_sourcepath
+c_archive_entry_sourcepath.argtypes = [c_void_p]
+c_archive_entry_sourcepath.restype = _check_zero_success
+
+c_archive_entry_free = libarchive.archive_entry_free
+c_archive_entry_free.argtypes = [c_void_p]
+c_archive_entry_free.restype = None
+

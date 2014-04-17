@@ -7,7 +7,11 @@ import libarchive.adapters.archive_entry
 import libarchive.constants.archive
 
 def _archive_read_new():
-    return libarchive.calls.archive_read.c_archive_read_new()
+    archive = libarchive.calls.archive_read.c_archive_read_new()
+    if archive is None:
+        raise ValueError("Could not create archive resource (read_new)."
+
+    return archive
 
 def _archive_read_support_filter_all(archive):
     return libarchive.calls.archive_read.c_archive_read_support_filter_all(
@@ -39,7 +43,8 @@ def _archive_read_next_header(archive):
     elif r == libarchive.constants.archive.ARCHIVE_EOF:
         yield None
     else:
-        raise ValueError("Archive iteration returned error: %d" % (r))
+        raise ValueError("Archive iteration (read_next_header) returned "
+                         "error: %d" % (r))
 
 def _archive_read_data_skip(entry):
     return libarchive.calls.archive_read.c_archive_read_data_skip(entry)
@@ -48,7 +53,43 @@ def _archive_read_free(archive):
     return libarchive.calls.archive_read.c_archive_read_free(archive)
 
 def _archive_write_set_format_7zip(archive):
-    return libarchive.calls.archive_read.c_archive_write_set_format_7zip(archive)
+    return libarchive.calls.archive_read.c_archive_write_set_format_7zip(
+            archive)
+
+
+
+def _archive_read_disk_new():
+    archive = libarchive.calls.archive_read.c_archive_read_disk_new()
+    if archive is None:
+        raise ValueError("Could not create archive resource (read_disk_new)."
+
+    return archive
+
+def _archive_read_disk_set_standard_lookup(archive):
+    return libarchive.calls.archive_read.\
+            c_archive_read_disk_set_standard_lookup(archive)
+
+def _archive_read_disk_open(archive, filepath):
+    return libarchive.calls.archive_read.c_archive_read_disk_open(
+            archive, 
+            filepath)
+
+def _archive_read_next_header2(archive, entry):
+    r = libarchive.calls.archive_read.c_archive_read_next_header2(
+            archive, 
+            entry)
+
+    if r not in (libarchive.constants.archive.ARCHIVE_OK,
+                 libarchive.constants.archive.ARCHIVE_EOF):
+        raise ValueError("Archive iteration (read_next_header2) returned "
+                         "error: %d" % (r))
+    
+    return r
+
+def _archive_read_disk_descend(archive):
+    return libarchive.calls.archive_read.c_archive_read_disk_descend(archive)
+
+
 
 _READ_FILTER_MAP = {
         'all': _archive_read_support_filter_all,
@@ -128,11 +169,12 @@ def pour(filepath,
                     raise ValueError("Pour failed: %d" % (r))
 
                 r = libarchive.calls.archive_write.\
-                        c_archive_write_data_block(
-                            ext, 
-                            buff, 
-                            size, 
-                            offset)
+                        libarchive.calls.archive_write.\
+                            c_archive_write_data_block(
+                                ext, 
+                                buff, 
+                                size, 
+                                offset)
 
             r = libarchive.calls.archive_write.\
                     c_archive_write_finish_entry(ext)

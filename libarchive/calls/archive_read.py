@@ -51,3 +51,26 @@ c_archive_read_data_block.argtypes = [
     POINTER(c_longlong)]
 c_archive_read_data_block.restype = c_int
 
+
+
+c_archive_read_disk_new = libarchive.archive_read_disk_new
+c_archive_read_disk_new.argtypes = []
+c_archive_read_disk_new.restype = c_void_p
+
+c_archive_read_disk_set_standard_lookup = \
+    libarchive.archive_read_disk_set_standard_lookup
+c_archive_read_disk_set_standard_lookup.argtypes = [c_void_p]
+c_archive_read_disk_set_standard_lookup.restype = _check_zero_success
+
+c_archive_read_disk_open = libarchive.archive_read_disk_open
+c_archive_read_disk_open.argtypes = [c_void_p, c_char_p]
+c_archive_read_disk_open.restype = _check_zero_success
+
+c_archive_read_next_header2 = libarchive.archive_read_next_header2
+c_archive_read_next_header2.argtypes = [c_void_p, c_void_p]
+c_archive_read_next_header2.restype = c_int
+
+c_archive_read_disk_descend = libarchive.archive_read_disk_descend
+c_archive_read_disk_descend.argtypes = [c_void_p]
+c_archive_read_disk_descend.restype = _check_zero_success
+

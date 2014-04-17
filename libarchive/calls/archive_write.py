@@ -34,10 +34,6 @@ c_archive_write_fail = libarchive.archive_write_fail
 c_archive_write_fail.argtypes = [c_void_p]
 c_archive_write_fail.restype = _check_zero_success
 
-c_archive_error_string = libarchive.archive_error_string
-c_archive_error_string.argtypes = [c_void_p]
-c_archive_error_string.restype = c_char_p
-
 c_archive_write_free = libarchive.archive_write_free
 c_archive_write_free.argtypes = [c_void_p]
 c_archive_write_free.restype = _check_zero_success
@@ -53,4 +49,34 @@ c_archive_write_data_block.restype = _check_zero_success
 c_archive_write_set_format_7zip = libarchive.archive_write_set_format_7zip
 c_archive_write_set_format_7zip.argtypes = [c_void_p]
 c_archive_write_set_format_7zip.restype = _check_zero_success
+
+
+c_archive_write_add_filter_bzip2 = libarchive.archive_write_add_filter_bzip2
+c_archive_write_add_filter_bzip2.argtypes = [c_void_p]
+c_archive_write_add_filter_bzip2.restype = _check_zero_success
+
+c_archive_write_add_filter_compress = \
+    libarchive.archive_write_add_filter_compress
+c_archive_write_add_filter_compress.argtypes = [c_void_p]
+c_archive_write_add_filter_compress.restype = _check_zero_success
+
+c_archive_write_add_filter_gzip = libarchive.archive_write_add_filter_gzip
+c_archive_write_add_filter_gzip.argtypes = [c_void_p]
+c_archive_write_add_filter_gzip.restype = _check_zero_success
+
+c_archive_write_add_filter_none = libarchive.archive_write_add_filter_none
+c_archive_write_add_filter_none.argtypes = [c_void_p]
+c_archive_write_add_filter_none.restype = _check_zero_success
+
+c_archive_write_set_format_ustar = libarchive.archive_write_set_format_ustar
+c_archive_write_set_format_ustar.argtypes = [c_void_p]
+c_archive_write_set_format_ustar.restype = _check_zero_success
+
+c_archive_write_open_filename = libarchive.archive_write_open_filename
+c_archive_write_open_filename.argtypes = [c_void_p, c_char_p]
+c_archive_write_open_filename.restype = _check_zero_success
+
+c_archive_write_data = libarchive.archive_write_data
+c_archive_write_data.argtypes = [c_void_p, c_void_p, c_size_t]
+c_archive_write_data.restype = c_ssize_t
 

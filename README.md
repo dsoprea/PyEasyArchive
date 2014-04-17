@@ -19,7 +19,8 @@ Task List
 |:----:| ---- |
 | X | Enumerate entries |
 | X | Extract entries to disk |
-|   | Create archives |
+|   | Populate archives from disk |
+|   | Populate archives from memory |
 |   | Fill-out the entry object's information/accessors |
 
 

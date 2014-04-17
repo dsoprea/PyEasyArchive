@@ -19,14 +19,14 @@ class _custom_install(install):
 description = "Python adapter for universal, libarchive-based archive access."
 
 setup(name='libarchive',
-      version='0.1.0',
+      version='0.3.7',
       description=description,
       long_description="""""",
       classifiers=[],
       keywords='archive libarchive 7z tar bz2 zip gz',
       author='Dustin Oprea',
       author_email='myselfasunder@gmail.com',
-      url='',
+      url='https://github.com/dsoprea/PyEasyArchive',
       license='GPL 2',
       packages=find_packages(exclude=['dev']),
       include_package_data=True,
@@ -34,4 +34,3 @@ setup(name='libarchive',
       install_requires=[],
       cmdclass={ 'install': _custom_install },
 )
-

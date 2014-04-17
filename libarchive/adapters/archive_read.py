@@ -168,6 +168,8 @@ def pour(filepath,
                 elif r != libarchive.constants.archive.ARCHIVE_OK:
                     raise ValueError("Pour failed: %d" % (r))
 
+# TODO(dustin): We might want to be able to allow the caller to skip files.
+
                 r = libarchive.calls.archive_write.\
                         libarchive.calls.archive_write.\
                             c_archive_write_data_block(

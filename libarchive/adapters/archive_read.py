@@ -7,37 +7,57 @@ import libarchive.calls.archive_write
 import libarchive.calls.archive_general
 import libarchive.adapters.archive_entry
 import libarchive.constants.archive
+import libarchive.exception
+
+from libarchive.calls.archive_general import c_archive_error_string
 
 _logger = logging.getLogger(__name__)
 
 def _archive_read_new():
     archive = libarchive.calls.archive_read.c_archive_read_new()
     if archive is None:
-        raise ValueError("Could not create archive resource (read_new)."
+        raise ValueError("Could not create archive resource (read_new).")
 
     return archive
 
 def _archive_read_support_filter_all(archive):
-    return libarchive.calls.archive_read.c_archive_read_support_filter_all(
-            archive)
+    try:
+        return libarchive.calls.archive_read.c_archive_read_support_filter_all(
+                archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_support_format_all(archive):
-    return libarchive.calls.archive_read.c_archive_read_support_format_all(
-            archive)
+    try:
+        return libarchive.calls.archive_read.c_archive_read_support_format_all(
+                archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_support_format_7zip(archive):
-    return libarchive.calls.archive_read.c_archive_read_support_format_7zip(
-            archive)
+    try:
+        return libarchive.calls.archive_read.\
+                c_archive_read_support_format_7zip(archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_open_filename(archive, filepath, block_size_bytes):
-    return libarchive.calls.archive_read.c_archive_read_open_filename(
-            archive, 
-            filepath, 
-            block_size_bytes)
+    try:
+        return libarchive.calls.archive_read.c_archive_read_open_filename(
+                archive, 
+                filepath, 
+                block_size_bytes)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 @contextlib.contextmanager
 def _archive_read_next_header(archive):
     entry = ctypes.c_void_p()
+
     r = libarchive.calls.archive_read.c_archive_read_next_header(
             archive, 
             ctypes.byref(entry))
@@ -47,36 +67,56 @@ def _archive_read_next_header(archive):
     elif r == libarchive.constants.archive.ARCHIVE_EOF:
         yield None
     else:
+        message = c_archive_error_string(archive)
         raise ValueError("Archive iteration (read_next_header) returned "
-                         "error: %d" % (r))
+                         "error: (%d) [%s]" % (r, message))
 
-def _archive_read_data_skip(entry):
-    return libarchive.calls.archive_read.c_archive_read_data_skip(entry)
+def _archive_read_data_skip(archive):
+    try:
+        return libarchive.calls.archive_read.c_archive_read_data_skip(archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_free(archive):
-    return libarchive.calls.archive_read.c_archive_read_free(archive)
+    try:
+        return libarchive.calls.archive_read.c_archive_read_free(archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_write_set_format_7zip(archive):
-    return libarchive.calls.archive_read.c_archive_write_set_format_7zip(
-            archive)
+    try:
+        return libarchive.calls.archive_read.c_archive_write_set_format_7zip(
+                archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 
 
 def _archive_read_disk_new():
     archive = libarchive.calls.archive_read.c_archive_read_disk_new()
     if archive is None:
-        raise ValueError("Could not create archive resource (read_disk_new)."
+        raise ValueError("Could not create archive resource (read_disk_new).")
 
     return archive
 
 def _archive_read_disk_set_standard_lookup(archive):
-    return libarchive.calls.archive_read.\
-            c_archive_read_disk_set_standard_lookup(archive)
+    try:
+        return libarchive.calls.archive_read.\
+                c_archive_read_disk_set_standard_lookup(archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_disk_open(archive, filepath):
-    return libarchive.calls.archive_read.c_archive_read_disk_open(
-            archive, 
-            filepath)
+    try:
+        return libarchive.calls.archive_read.c_archive_read_disk_open(
+                archive, filepath)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_next_header2(archive, entry):
     r = libarchive.calls.archive_read.c_archive_read_next_header2(
@@ -85,15 +125,19 @@ def _archive_read_next_header2(archive, entry):
 
     if r not in (libarchive.constants.archive.ARCHIVE_OK,
                  libarchive.constants.archive.ARCHIVE_EOF):
+        message = c_archive_error_string(archive)
         raise ValueError("Archive iteration (read_next_header2) returned "
-                         "error: %d" % (r))
+                         "error: (%d) [%s]" % (r, message))
     
     return r
 
 def _archive_read_disk_descend(archive):
-    return libarchive.calls.archive_read.c_archive_read_disk_descend(archive)
-
-
+    try:
+        return libarchive.calls.archive_read.c_archive_read_disk_descend(
+                archive)
+    except:
+        message = c_archive_error_string(archive)
+        raise libarchive.exception.ArchiveError(message)
 
 _READ_FILTER_MAP = {
         'all': _archive_read_support_filter_all,

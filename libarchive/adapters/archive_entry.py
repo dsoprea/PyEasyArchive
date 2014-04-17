@@ -31,7 +31,7 @@ class ArchiveEntry(object):
         self.__entry_res = entry_res
 
     def __del__(self):
-        _archive_entry_free(self.__entry_res):
+        _archive_entry_free(self.__entry_res)
 
     def __str__(self):
         return self.pathname

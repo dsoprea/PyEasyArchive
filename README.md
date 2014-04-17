@@ -6,10 +6,18 @@ and intuitive.
 
 Even 7-Zip is supported.
 
-**This is a work in progress to be finished very soon.**
+I could definitely use some help, if any is available. Completeness will 
+require a bit more work (see *libarchive*'s archive.h).
 
-I could definitely use some help contributing to the completeness of this
-library.
+
+Installation
+------------
+
+PyPI:
+
+```
+sudo pip install libarchive
+```
 
 
 Task List
@@ -54,7 +62,7 @@ for state in libarchive.pour('test.7z'):
     print("Writing: %s" % (state))
 ```
 
-To build an archive from a collection of files (omit the target for STDOUT):
+To build an archive from a collection of files (omit the target for *stdout*):
 
 ```python
 for entry in libarchive.create(

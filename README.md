@@ -4,7 +4,7 @@ Introduction
 A ctypes-based adapter to libarchive. The source-code is written to be clear 
 and intuitive.
 
-Even 7-Zip is supported.
+Even 7-Zip is supported for both reading and writing.
 
 I could definitely use some help, if any is available. Completeness will 
 require a bit more work (see *libarchive*'s archive.h).
@@ -65,6 +65,8 @@ for state in libarchive.pour('test.7z'):
 To build an archive from a collection of files (omit the target for *stdout*):
 
 ```python
+import libarchive
+
 for entry in libarchive.create(
                 '7z', 
                 ['/aa/bb', '/cc/dd'], 

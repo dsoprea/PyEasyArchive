@@ -6,8 +6,8 @@ def _pre_install():
 
     try:
         import libarchive.library
-    except OSError:
-        print("Library can not be loaded: %s" % (_LIB_FILEPATH))
+    except OSError as e:
+        print("Library can not be loaded: %s" % (str(e)))
         raise
 
 
@@ -19,7 +19,7 @@ class _custom_install(install):
 description = "Python adapter for universal, libarchive-based archive access."
 
 setup(name='libarchive',
-      version='0.3.7',
+      version='0.3.8',
       description=description,
       long_description="""""",
       classifiers=[],

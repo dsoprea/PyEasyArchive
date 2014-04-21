@@ -19,7 +19,7 @@ class _custom_install(install):
 description = "Python adapter for universal, libarchive-based archive access."
 
 setup(name='libarchive',
-      version='0.3.8',
+      version='0.3.9',
       description=description,
       long_description="""""",
       classifiers=[],

@@ -51,12 +51,12 @@ def _archive_write_close(archive):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
-def _archive_write_fail(archive):
-    try:
-        libarchive.calls.archive_write.c_archive_write_fail(archive)
-    except:
-        message = c_archive_error_string(archive)
-        raise libarchive.exception.ArchiveError(message)
+#def _archive_write_fail(archive):
+#    try:
+#        libarchive.calls.archive_write.c_archive_write_fail(archive)
+#    except:
+#        message = c_archive_error_string(archive)
+#        raise libarchive.exception.ArchiveError(message)
 
 def _archive_write_free(archive):
     try:

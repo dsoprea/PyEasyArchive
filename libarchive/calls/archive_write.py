@@ -34,9 +34,10 @@ c_archive_write_close = libarchive.archive_write_close
 c_archive_write_close.argtypes = [c_void_p]
 c_archive_write_close.restype = _check_zero_success
 
-c_archive_write_fail = libarchive.archive_write_fail
-c_archive_write_fail.argtypes = [c_void_p]
-c_archive_write_fail.restype = _check_zero_success
+#Not supported until 3.1.0 . We don't want to impose it.
+#c_archive_write_fail = libarchive.archive_write_fail
+#c_archive_write_fail.argtypes = [c_void_p]
+#c_archive_write_fail.restype = _check_zero_success
 
 c_archive_write_free = libarchive.archive_write_free
 c_archive_write_free.argtypes = [c_void_p]

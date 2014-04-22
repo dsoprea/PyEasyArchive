@@ -13,6 +13,10 @@ from libarchive.calls.archive_general import c_archive_error_string
 
 _logger = logging.getLogger(__name__)
 
+# TODO(dustin): We might have to switch most of our c_char_p references to 
+#               POINTER(c_char), since we're often not using zero-terminated 
+#               strings.
+
 def _archive_read_new():
     archive = libarchive.calls.archive_read.c_archive_read_new()
     if archive is None:
@@ -101,8 +105,6 @@ def _archive_write_set_format_7zip(archive):
     except:
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
-
-
 
 def _archive_read_disk_new():
     archive = libarchive.calls.archive_read.c_archive_read_disk_new()
@@ -229,13 +231,13 @@ _READ_FORMAT_MAP = {
     }
 
 def _set_read_context(archive_res, filter_name, format_name):
-    _filter = _READ_FILTER_MAP[filter_name]        
-    _logger.debug("Invoking filter: %s", _filter.__name__)
-    r = _filter(archive_res)
+    filter_ = _READ_FILTER_MAP[filter_name]        
+    _logger.debug("Invoking filter: %s", filter_.__name__)
+    r = filter_(archive_res)
 
-    _format = _READ_FORMAT_MAP[format_name]
-    _logger.debug("Invoking format: %s", _format.__name__)
-    r = _format(archive_res)
+    format = _READ_FORMAT_MAP[format_name]
+    _logger.debug("Invoking format: %s", format.__name__)
+    r = format(archive_res)
 
 @contextlib.contextmanager
 def _enumerator(opener, entry_cls, filter_name='all', format_name='all'):

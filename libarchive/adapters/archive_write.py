@@ -1,9 +1,11 @@
 import sys
 import ctypes
 import logging
+import os.path
 
 import libarchive.constants.archive
 import libarchive.exception
+import libarchive.types.archive
 import libarchive.calls.archive_write
 import libarchive.calls.archive_read
 import libarchive.adapters.archive_entry
@@ -167,6 +169,21 @@ def _archive_write_open_fd(archive, stream=sys.stdout):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
+def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
+    libarchive.calls.archive_write.c_archive_write_open(
+        archive, 
+        context, 
+        libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
+        libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
+        libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
+
+def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
+    libarchive.calls.archive_write.c_archive_write_open_memory(
+        archive, 
+        buffer_, 
+        len(buffer_), 
+        consumed_size_ptr)
+
 _WRITE_FILTER_MAP = {
         None:       _archive_write_add_filter_none,
         'bz2':      _archive_write_add_filter_bzip2,
@@ -179,28 +196,27 @@ _WRITE_FORMAT_MAP = {
         '7z':    _archive_write_set_format_7zip,
     }
 
-def create(format_name, files, filepath=None, filter_name=None, buffer_length=16384):
+def _set_write_context(archive_res, filter_name, format_name):
+    filter_ = _WRITE_FILTER_MAP[filter_name]
+    _logger.debug("Invoking filter: %s", filter_.__name__)
+    r = filter_(archive_res)
+
+    format = _WRITE_FORMAT_MAP[format_name]
+    _logger.debug("Invoking format: %s", format.__name__)
+    r = format(archive_res)
+
+def _create(opener,
+            format_name, 
+            files, 
+            filter_name=None, 
+            buffer_length=16384):
     """Create an archive from a collection of files (not recursive)."""
 
-    _logger.debug("Creating archive with format [%s] from (%d) files: "
-                  "NAME=[%s]", 
-                  format_name, len(files), filepath)
-
-    format_ = _WRITE_FORMAT_MAP[format_name]
-    filter_ = _WRITE_FILTER_MAP[filter_name]
-
     a = _archive_write_new()
-    filter_(a)
-    format_(a)
+    _set_write_context(a, filter_name, format_name)
 
-# TODO(dustin): Allow for the following output modes:
-# 1. stdout (_archive_write_open_fd)
-# 2. file: (_archive_write_open_filename)
-# 3. memory (_archive_write_open_memory)
-    if filepath is not None:
-        _archive_write_open_filename(a, filepath)
-    else:
-        _archive_write_open_fd(a)
+    _logger.debug("Opening archive (create).")
+    opener(a)
 
 # Use the standard uid/gid lookup mechanisms.
 # This was set on an instance of *disk* that wasn't used. Do we still need it?
@@ -223,18 +239,30 @@ def create(format_name, files, filepath=None, filter_name=None, buffer_length=16
             elif r != libarchive.constants.archive.ARCHIVE_OK:
                 message = c_archive_error_string(disk)
                 raise libarchive.exception.ArchiveError(
-                        "Create failed: (%d) [%s]" % (r, message))
+                        "Could not build header from physical source file "
+                        "during create: (%d) [%s]" % 
+                        (r, message))
 
             wrapped = libarchive.adapters.archive_entry.ArchiveEntry(
                         disk, 
                         entry)
 
+            if os.path.isabs(wrapped.pathname) is True:
+                _logger.debug("Stripping leading slash: %s" % 
+                              (wrapped.pathname))
+
+                wrapped.pathname = wrapped.pathname[1:]
+
+            _logger.debug("Yielding: %s", wrapped)
             yield wrapped
 
+            _logger.debug("Reading source file: %s", filepath)
             libarchive.calls.archive_read.c_archive_read_disk_descend(disk)
 
+            _logger.debug("Writing entry header.")
             r = _archive_write_header(a, entry)
 
+            _logger.debug("Writing entry data.")
             with open(wrapped.sourcepath, 'rb') as f:
                 while 1:
                     data = f.read(buffer_length)
@@ -245,8 +273,44 @@ def create(format_name, files, filepath=None, filter_name=None, buffer_length=16
 
             libarchive.calls.archive_entry.c_archive_entry_free(entry)
 
+        _logger.debug("Closing read source.")
         libarchive.calls.archive_read.c_archive_read_close(disk)
+
+        _logger.debug("Freeing read source.")
         libarchive.calls.archive_read.c_archive_read_free(disk)
 
+    _logger.debug("Closing archive (create).")
     _archive_write_close(a)
+
+    _logger.debug("Freeing archive (create).")
     _archive_write_free(a)
+
+def create_file(filepath, *args, **kwargs):
+    def opener(archive):
+        _archive_write_open_filename(archive, filepath)
+
+    return _create(opener, *args, **kwargs)
+
+def create_stream(s, *args, **kwargs):
+    def opener(archive):
+        _archive_write_open_fd(archive, s.fileno())
+
+    return _create(opener, *args, **kwargs)
+
+#def create_memory(*args, **kwargs):
+#    def write_cb(archive, context, buffer, length):
+#        print("Write: Writing (%d) bytes." % (length))
+#        return c_ssize_t(length)
+#
+#    def open_cb(archive, context):
+#        print("Write: Opening.")
+#        return 0
+#
+#    def close_cb(archive, context):
+#        print("Write: Closing.")
+#        return 0
+#
+#    def opener(archive):
+#        _archive_write_open(archive, None, open_cb, write_cb, close_cb)
+#
+#    return _create(opener, *args, **kwargs)

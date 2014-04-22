@@ -1,3 +1,5 @@
+import ctypes
+
 import libarchive.calls.archive_entry
 
 def _archive_entry_pathname(entry):
@@ -22,6 +24,11 @@ def _archive_entry_free(entry):
 
 def _archive_entry_size(entry):
     return libarchive.calls.archive_entry.c_archive_entry_size(entry)
+
+def _archive_entry_set_pathname(entry, name):
+    libarchive.calls.archive_entry.c_archive_entry_set_pathname(
+        entry, 
+        ctypes.c_char_p(name))
 
 
 class ArchiveEntry(object):
@@ -62,6 +69,10 @@ class ArchiveEntry(object):
     @property
     def pathname(self):
         return _archive_entry_pathname(self.__entry_res)
+
+    @pathname.setter
+    def pathname(self, value):
+        _archive_entry_set_pathname(self.__entry_res, value)
 
     @property
     def sourcepath(self):

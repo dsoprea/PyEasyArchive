@@ -38,40 +38,50 @@ Task List
 Examples
 --------
 
-To enumerate the entries in an archive:
-
-```python
-import libarchive
-
-with libarchive.reader('test.7z') as reader:
-    for e in reader:
-        # (The entry evaluates to a filename.)
-        print("> %s" % (e))
-```
-
-To extract the entries from an archive to the current directory (like a normal,
-Unix-based extraction):
-
-```python
-import libarchive
-
-for state in libarchive.pour('test.7z'):
-    if state.pathname == 'dont/write/me':
-        state.set_selected(False)
-        continue
-
-    # (The state evaluates to a filename.)
-    print("Writing: %s" % (state))
-```
-
-To build an archive from a collection of files (omit the target for *stdout*):
+To create a physical archive from physical files:
 
 ```python
 import libarchive
 
 for entry in libarchive.create(
                 '7z', 
-                ['/aa/bb', '/cc/dd'], 
+                ['/etc/profile'], 
                 'create.7z'):
     print("Adding: %s" % (entry))
+```
+
+To read files from a physical archive:
+
+```python
+import libarchive
+
+with libarchive.file_reader('test.7z') as e:
+    for entry in e:
+        with open('/tmp/' + str(entry), 'wb') as f:
+            for block in entry.get_blocks():
+                f.write(block)
+```
+
+To read files from a memory-hosted archive:
+
+```python
+import libarchive
+
+with open('test.7z', 'rb') as f:
+    buffer_ = f.read()
+    with libarchive.memory_reader(buffer_) as e:
+        for entry in e:
+            with open('/tmp/' + str(entry), 'wb') as f:
+                for block in entry.get_blocks():
+                    f.write(block)
+```
+
+
+Testing
+-------
+
+*libarchive* uses [nose](https://nose.readthedocs.org) for testing.
+
+```
+tests$ ./run.py
 ```

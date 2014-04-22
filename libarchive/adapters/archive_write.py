@@ -10,8 +10,6 @@ import libarchive.adapters.archive_entry
 
 from libarchive.calls.archive_general import c_archive_error_string
 
-_STDOUT = sys.stdout.fileno()
-
 _logger = logging.getLogger(__name__)
 
 def _archive_write_new():
@@ -160,7 +158,9 @@ def _archive_write_open_memory(archive, buffer, counter):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
-def _archive_write_open_fd(archive, fp=_STDOUT):
+def _archive_write_open_fd(archive, stream=sys.stdout):
+    fp = stream.fileno()
+
     try:
         return libarchive.calls.archive_write.c_archive_write_open_fd(archive, fp)
     except:

@@ -25,11 +25,13 @@ Task List
 
 | Done | Task |
 |:----:| ---- |
-| X | Enumerate entries |
-| X | Extract entries to disk |
-| X | Populate archives from disk |
-|   | Populate archives from memory |
-|   | Populate archives into memory |
+| X | Read entries from physical file |
+| X | Read entries from archive hosted in memory buffer |
+| X | Write physical files from archive |
+| X | Load memory buffer from archive |
+| X | Populate physical archive from physical files |
+|   | Populate archive hosted in memory buffer |
+|   | Populate archive entries from memory buffers |
 |   | Fill-out the entry object's information/accessors |
 
 

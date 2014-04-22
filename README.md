@@ -7,7 +7,7 @@ and intuitive.
 Even 7-Zip is supported for both reading and writing.
 
 I could definitely use some help, if any is available. Completeness will 
-require a bit more work (see *libarchive*'s archive.h).
+require a bit more work (see *libarchive*'s archive.h and archive_entry.h).
 
 
 Installation

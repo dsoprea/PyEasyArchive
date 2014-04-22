@@ -7,7 +7,7 @@ import os
 import logging
 
 logger = logging.getLogger()
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
@@ -25,15 +25,32 @@ os.environ['DYLD_LIBRARY_PATH'] = '/Users/dustin/build/libarchive/build/libarchi
 
 import libarchive
 
-#with libarchive.reader('test.7z') as reader:
-#    for e in reader:
-#        print("> %s" % (e))
-
-#for entry in libarchive.pour('test.7z'):
-#    print("Wrote: %s" % (entry))
-
 for entry in libarchive.create(
                 '7z', 
                 ['/etc/profile'], 
                 'create.7z'):
     print("Adding: %s" % (entry))
+
+with libarchive.file_enumerator('test.7z') as e:
+    for entry in e:
+        print(entry)
+
+with open('test.7z', 'rb') as f:
+    buffer_ = f.read()
+    with libarchive.memory_enumerator(buffer_) as e:
+        for entry in e:
+            print(entry)
+
+with libarchive.file_reader('test.7z') as e:
+    for entry in e:
+        with open('/tmp/' + str(entry), 'wb') as f:
+            for block in entry.get_blocks():
+                f.write(block)
+
+with open('test.7z', 'rb') as f:
+    buffer_ = f.read()
+    with libarchive.memory_reader(buffer_) as e:
+        for entry in e:
+            with open('/tmp/' + str(entry), 'wb') as f:
+                for block in entry.get_blocks():
+                    f.write(block)

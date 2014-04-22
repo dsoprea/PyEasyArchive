@@ -31,6 +31,10 @@ c_archive_read_open_filename = libarchive.archive_read_open_filename
 c_archive_read_open_filename.argtypes = [c_void_p, c_char_p, c_size_t]
 c_archive_read_open_filename.restype = _check_zero_success
 
+c_archive_read_open_memory = libarchive.archive_read_open_memory
+c_archive_read_open_memory.argtypes = [c_void_p, c_void_p, c_size_t]
+c_archive_read_open_memory.restype = _check_zero_success
+
 c_archive_read_next_header = libarchive.archive_read_next_header
 c_archive_read_next_header.argtypes = [c_void_p, POINTER(c_void_p)]
 c_archive_read_next_header.restype = c_int
@@ -77,3 +81,11 @@ c_archive_read_disk_descend.restype = _check_zero_success
 c_archive_read_close = libarchive.archive_read_close
 c_archive_read_close.argtypes = [c_void_p]
 c_archive_read_close.restype = _check_zero_success
+
+c_archive_read_data = libarchive.archive_read_data
+c_archive_read_data.argtypes = [c_void_p, c_void_p, c_size_t]
+c_archive_read_data.restype = c_ssize_t
+
+c_archive_read_data_block = libarchive.archive_read_data_block
+c_archive_read_data_block.argtypes = [c_void_p, POINTER(c_void_p), POINTER(c_size_t), POINTER(c_longlong)]
+c_archive_read_data_block.restype = c_int

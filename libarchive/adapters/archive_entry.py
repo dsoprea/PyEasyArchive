@@ -20,11 +20,15 @@ def _archive_entry_sourcepath(entry):
 def _archive_entry_free(entry):
     libarchive.calls.archive_entry.c_archive_entry_free(entry)
 
+def _archive_entry_size(entry):
+    return libarchive.calls.archive_entry.c_archive_entry_size(entry)
+
 
 class ArchiveEntry(object):
     def __init__(self, reader_res, entry_res):
         self.__reader_res = reader_res
         self.__entry_res = entry_res
+        self.__is_consumed = False
 
 # TODO(dustin): Not necessary, at least during the read.
 #    def __del__(self):
@@ -32,6 +36,9 @@ class ArchiveEntry(object):
 
     def __str__(self):
         return self.pathname
+
+    def __repr__(self):
+        return ('[%s] SIZE=(%d)' % (self.pathname, self.size))
 
     @property
     def reader_res(self):
@@ -41,6 +48,17 @@ class ArchiveEntry(object):
     def entry_res(self):
         return self.__entry_res
 
+    def read_block(self):
+        for block in _read_by_block(self.reader_res):
+            yield block
+
+        self.__is_consumed = True
+
+    @property
+    def is_consumed(self):
+        return self.__is_consumed
+
+
     @property
     def pathname(self):
         return _archive_entry_pathname(self.__entry_res)
@@ -48,3 +66,7 @@ class ArchiveEntry(object):
     @property
     def sourcepath(self):
         return _archive_entry_sourcepath(self.__entry_res)
+
+    @property
+    def size(self):
+        return _archive_entry_size(self.__entry_res)

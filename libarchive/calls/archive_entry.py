@@ -26,3 +26,6 @@ c_archive_entry_free = libarchive.archive_entry_free
 c_archive_entry_free.argtypes = [c_void_p]
 c_archive_entry_free.restype = None
 
+c_archive_entry_size = libarchive.archive_entry_size
+c_archive_entry_size.argtypes = [c_void_p]
+c_archive_entry_size.restype = c_longlong

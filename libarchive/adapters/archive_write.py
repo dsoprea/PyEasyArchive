@@ -173,9 +173,9 @@ def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
     libarchive.calls.archive_write.c_archive_write_open(
         archive, 
         context, 
-        None,
+        None,#libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
-        None)
+        None)#libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
 
 def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
     libarchive.calls.archive_write.c_archive_write_open_memory(
@@ -219,7 +219,7 @@ def _create(opener,
             format_name, 
             files, 
             filter_name=None, 
-            buffer_length=16384):
+            block_size=16384):
     """Create an archive from a collection of files (not recursive)."""
 
     a = _archive_write_new()
@@ -275,7 +275,7 @@ def _create(opener,
             _logger.debug("Writing entry data.")
             with open(wrapped.sourcepath, 'rb') as f:
                 while 1:
-                    data = f.read(buffer_length)
+                    data = f.read(block_size)
                     if not data:
                         break
 
@@ -307,24 +307,29 @@ def create_stream(s, *args, **kwargs):
 
     return _create(opener, *args, **kwargs)
 
-def write_cb(archive, context, buffer, length):
-    print("Write: Writing (%d) bytes." % (length))
-    return length
+def create_generic(write_cb,
+                   block_size=16384,
+                   open_cb=None, 
+                   close_cb=None, 
+                   *args,
+                   **kwargs):
+    def write_cb_internal(archive, context, buffer_, length):
+        return length#write_cb(raw, length)
 
-def open_cb(archive, context):
-    print("Write: Opening.")
-    return libarchive.constants.archive.ARCHIVE_OK
+    def open_cb_internal(archive, context):
+	return libarchive.constants.archive.ARCHIVE_OK
 
-def close_cb(archive, context):
-    print("Write: Closing.")
-    return libarchive.constants.archive.ARCHIVE_OK
+    def close_cb_internal(archive, context):
+        return libarchive.constants.archive.ARCHIVE_OK
 
-def create_memory(block_size, *args, **kwargs):
     def opener(archive):
         _archive_write_set_bytes_in_last_block(archive, 1)
         _archive_write_set_bytes_per_block(archive, block_size)
         
-        data = ctypes.cast(ctypes.c_char_p("abc"), ctypes.c_void_p)
-        _archive_write_open(archive, data, open_cb, write_cb, close_cb)
+        _archive_write_open(archive, 
+                            None, 
+                            open_cb_internal, 
+                            write_cb_internal, 
+                            close_cb_internal)
 
     return _create(opener, *args, **kwargs)

@@ -52,16 +52,17 @@ import libarchive
 #                for block in entry.get_blocks():
 #                    f.write(block)
 
-for entry in libarchive.create_file(
-                'create.7z',
-                '7z', 
-                ['/etc/profile']):
-    print("Adding: %s" % (entry))
-
-#for entry in libarchive.create_memory(
+#for entry in libarchive.create_file(
+#                'create.7z',
 #                '7z', 
-#                []):
+#                ['/etc/profile']):
 #    print("Adding: %s" % (entry))
+
+for entry in libarchive.create_memory(
+                10000,
+                '7z', 
+                []):
+    print("Adding: %s" % (entry))
 
 #libarchive.create_file('create.7z', '7z', ['/etc/profile'])
 #libarchive.create_memory('7z', [])

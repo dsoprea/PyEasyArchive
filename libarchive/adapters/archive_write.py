@@ -173,9 +173,9 @@ def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
     libarchive.calls.archive_write.c_archive_write_open(
         archive, 
         context, 
-        libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
+        None,
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
-        libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
+        None)
 
 def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
     libarchive.calls.archive_write.c_archive_write_open_memory(
@@ -183,6 +183,16 @@ def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
         buffer_, 
         len(buffer_), 
         consumed_size_ptr)
+
+def _archive_write_set_bytes_per_block(archive, bytes_per_block):
+    libarchive.calls.archive_write.c_archive_write_set_bytes_per_block(
+        archive, 
+        bytes_per_block)
+
+def _archive_write_set_bytes_in_last_block(archive, bytes_in_last_block):
+    libarchive.calls.archive_write.c_archive_write_set_bytes_in_last_block(
+        archive,
+        bytes_in_last_block)
 
 _WRITE_FILTER_MAP = {
         None:       _archive_write_add_filter_none,
@@ -297,20 +307,24 @@ def create_stream(s, *args, **kwargs):
 
     return _create(opener, *args, **kwargs)
 
-#def create_memory(*args, **kwargs):
-#    def write_cb(archive, context, buffer, length):
-#        print("Write: Writing (%d) bytes." % (length))
-#        return c_ssize_t(length)
-#
-#    def open_cb(archive, context):
-#        print("Write: Opening.")
-#        return 0
-#
-#    def close_cb(archive, context):
-#        print("Write: Closing.")
-#        return 0
-#
-#    def opener(archive):
-#        _archive_write_open(archive, None, open_cb, write_cb, close_cb)
-#
-#    return _create(opener, *args, **kwargs)
+def write_cb(archive, context, buffer, length):
+    print("Write: Writing (%d) bytes." % (length))
+    return length
+
+def open_cb(archive, context):
+    print("Write: Opening.")
+    return libarchive.constants.archive.ARCHIVE_OK
+
+def close_cb(archive, context):
+    print("Write: Closing.")
+    return libarchive.constants.archive.ARCHIVE_OK
+
+def create_memory(block_size, *args, **kwargs):
+    def opener(archive):
+        _archive_write_set_bytes_in_last_block(archive, 1)
+        _archive_write_set_bytes_per_block(archive, block_size)
+        
+        data = ctypes.cast(ctypes.c_char_p("abc"), ctypes.c_void_p)
+        _archive_write_open(archive, data, open_cb, write_cb, close_cb)
+
+    return _create(opener, *args, **kwargs)

@@ -173,9 +173,9 @@ def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
     libarchive.calls.archive_write.c_archive_write_open(
         archive, 
         context, 
-        None,#libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
+        libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
-        None)#libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
+        libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
 
 def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
     libarchive.calls.archive_write.c_archive_write_open_memory(
@@ -308,18 +308,25 @@ def create_stream(s, *args, **kwargs):
     return _create(opener, *args, **kwargs)
 
 def create_generic(write_cb,
-                   block_size=16384,
                    open_cb=None, 
                    close_cb=None, 
+                   block_size=16384,
                    *args,
                    **kwargs):
     def write_cb_internal(archive, context, buffer_, length):
-        return length#write_cb(raw, length)
+        data = ctypes.cast(buffer_, ctypes.POINTER(ctypes.c_char * length))[0]
+        return write_cb(data, length)
 
     def open_cb_internal(archive, context):
+        if open_cb is not None:
+            open_cb()
+        
         return libarchive.constants.archive.ARCHIVE_OK
 
     def close_cb_internal(archive, context):
+        if close_cb is not None:
+            close_cb()
+
         return libarchive.constants.archive.ARCHIVE_OK
 
     def opener(archive):
@@ -333,3 +340,4 @@ def create_generic(write_cb,
                             close_cb_internal)
 
     return _create(opener, *args, **kwargs)
+

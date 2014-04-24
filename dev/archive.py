@@ -58,19 +58,25 @@ import libarchive
 #                ['/etc/profile']):
 #    print("Adding: %s" % (entry))
 
-#with open('/tmp/new.7z', 'wb') as f:
+with open('/tmp/new.7z', 'wb') as f:
+    def writer(buffer_, length):
+        f.write(buffer_)
+        return length
 
-def writer(buffer_, length):
-    #print("Received (%d) bytes." % (len(buffer_)))
-    #print("Received: %d [%s]" % (len(buffer_), buffer_.__class__))
-#    f.write(buffer_)
-    return length
+    def opener():
+        print("Opening.")
+    
+    def closer():
+        print("Closing.")
 
-for entry in libarchive.create_generic(
-                writer,
-                format_name='7z', 
-                files=['/etc/profile']):
-    print("Adding: %s" % (entry))
+    for entry in libarchive.create_generic(
+                    writer,
+                    open_cb=opener,
+                    close_cb=closer,
+                    format_name='7z', 
+                    files=['/etc/profile']):
+        print("Adding: %s" % (entry))
 
 #libarchive.create_file('create.7z', '7z', ['/etc/profile'])
 #libarchive.create_memory('7z', [])
+

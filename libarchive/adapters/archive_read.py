@@ -387,3 +387,4 @@ def memory_pour(buffer_, *args, **kwargs):
         _archive_read_open_memory(archive_res, buffer_)
 
     return _pour(opener, *args, flags=0, **kwargs)
+

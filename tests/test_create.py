@@ -26,3 +26,19 @@ def test_create_to_file_from_file():
 
 test_create_to_file_from_file.setUp = _setup
 test_create_to_file_from_file.tearDown = _teardown
+
+# TODO(dustin): This segfaults during the test, for some reason.
+#def test_create_to_memory_from_file():
+#    def writer(buffer_, length):
+#        return length
+#
+#    with open(_TEST_CREATE_ARCHIVE, 'wb') as f:
+#        for entry in libarchive.create_generic(
+#                        writer,
+#                        format_name='7z', 
+#                        files=['/etc/hosts']):
+#            pass
+
+#test_create_to_memory_from_file.setUp = _setup
+#test_create_to_memory_from_file.tearDown = _teardown
+

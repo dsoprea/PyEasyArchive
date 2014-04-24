@@ -90,6 +90,20 @@ with open('test.7z', 'rb') as f:
                     f.write(block)
 ```
 
+To create an archive in memory:
+
+```python
+with open('/tmp/new.7z', 'wb') as f:
+    def writer(buffer_, length):
+        f.write(buffer_)
+        return length
+
+    for entry in libarchive.create_generic(
+                    writer,
+                    format_name='7z', 
+                    files=['/etc/profile']):
+        print("Adding: %s" % (entry))
+```
 
 Testing
 -------

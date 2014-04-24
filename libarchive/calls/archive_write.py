@@ -102,8 +102,7 @@ c_archive_write_open_fd.argtypes = [c_void_p, c_int]
 c_archive_write_open_fd.restype = _check_zero_success
 
 c_archive_write_open = libarchive.archive_write_open
-#c_archive_write_open.argtypes = [c_void_p, c_void_p, ARCHIVE_OPEN_CALLBACK, ARCHIVE_WRITE_CALLBACK, ARCHIVE_CLOSE_CALLBACK]
-c_archive_write_open.argtypes = [c_void_p, c_void_p, c_void_p, ARCHIVE_WRITE_CALLBACK, c_void_p]
+c_archive_write_open.argtypes = [c_void_p, c_void_p, ARCHIVE_OPEN_CALLBACK, ARCHIVE_WRITE_CALLBACK, ARCHIVE_CLOSE_CALLBACK]
 c_archive_write_open.restype = _check_zero_success
 
 c_archive_write_open_memory = libarchive.archive_write_open_memory

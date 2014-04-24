@@ -44,7 +44,7 @@ Task List
 | X | Write physical files from archive |
 | X | Load memory buffer from archive |
 | X | Populate physical archive from physical files |
-|   | Populate archive hosted in memory buffer |
+| X | Populate archive hosted in memory buffer |
 |   | Populate archive entries from memory buffers |
 |   | Fill-out the entry object's information/accessors |
 

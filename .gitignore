@@ -1,2 +1,4 @@
 /libarchive.egg-info/
 /dist/
+*.pyc
+

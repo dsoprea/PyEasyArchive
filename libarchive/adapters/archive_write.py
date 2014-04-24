@@ -257,22 +257,16 @@ def _create(opener,
                         disk, 
                         entry)
 
+            # Strip leading slash so it stores as a relative path.
             if os.path.isabs(wrapped.pathname) is True:
-                _logger.debug("Stripping leading slash: %s" % 
-                              (wrapped.pathname))
-
                 wrapped.pathname = wrapped.pathname[1:]
 
-            _logger.debug("Yielding: %s", wrapped)
             yield wrapped
 
-            _logger.debug("Reading source file: %s", filepath)
             libarchive.calls.archive_read.c_archive_read_disk_descend(disk)
 
-            _logger.debug("Writing entry header.")
             r = _archive_write_header(a, entry)
 
-            _logger.debug("Writing entry data.")
             with open(wrapped.sourcepath, 'rb') as f:
                 while 1:
                     data = f.read(block_size)
@@ -283,16 +277,12 @@ def _create(opener,
 
             libarchive.calls.archive_entry.c_archive_entry_free(entry)
 
-        _logger.debug("Closing read source.")
         libarchive.calls.archive_read.c_archive_read_close(disk)
-
-        _logger.debug("Freeing read source.")
         libarchive.calls.archive_read.c_archive_read_free(disk)
 
     _logger.debug("Closing archive (create).")
-    _archive_write_close(a)
 
-    _logger.debug("Freeing archive (create).")
+    _archive_write_close(a)
     _archive_write_free(a)
 
 def create_file(filepath, *args, **kwargs):

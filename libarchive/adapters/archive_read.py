@@ -143,10 +143,11 @@ def _archive_read_next_header2(archive, entry):
     return r
 
 def _archive_read_disk_descend(archive):
-    try:
-        return libarchive.calls.archive_read.c_archive_read_disk_descend(
+    result = libarchive.calls.archive_read.c_archive_read_disk_descend(
                 archive)
-    except:
+
+    if result not in (libarchive.constants.archive.ARCHIVE_OK,
+                      libarchive.constants.archive.ARCHIVE_WARN):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 

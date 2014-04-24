@@ -173,9 +173,9 @@ def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
     libarchive.calls.archive_write.c_archive_write_open(
         archive, 
         context, 
-        None,
+        libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
-        None)
+        libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
 
 def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
     libarchive.calls.archive_write.c_archive_write_open_memory(
@@ -307,19 +307,19 @@ def create_stream(s, *args, **kwargs):
 
     return _create(opener, *args, **kwargs)
 
-def write_cb(archive, context, buffer, length):
-    print("Write: Writing (%d) bytes." % (length))
-    return length
-
-def open_cb(archive, context):
-    print("Write: Opening.")
-    return libarchive.constants.archive.ARCHIVE_OK
-
-def close_cb(archive, context):
-    print("Write: Closing.")
-    return libarchive.constants.archive.ARCHIVE_OK
-
 def create_memory(block_size, *args, **kwargs):
+    def write_cb(archive, context, buffer, length):
+#        print("Write: Writing (%d) bytes." % (length))
+        return length
+
+    def open_cb(archive, context):
+#        print("Write: Opening.")
+        return libarchive.constants.archive.ARCHIVE_OK
+
+    def close_cb(archive, context):
+ #       print("Write: Closing.")
+        return libarchive.constants.archive.ARCHIVE_OK
+
     def opener(archive):
         _archive_write_set_bytes_in_last_block(archive, 1)
         _archive_write_set_bytes_per_block(archive, block_size)

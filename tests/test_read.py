@@ -7,6 +7,8 @@ import libarchive
 _EXPAND_PATH = os.path.join('/tmp', 'libarchive_expand')
 _TEST_READ_ARCHIVE = os.path.join(_EXPAND_PATH, 'read.7z')
 
+# TODO(dustin): Add tests for file and memory pouring.
+
 def _setup():
     if os.path.exists(_EXPAND_PATH) is True:
         shutil.rmtree(_EXPAND_PATH)

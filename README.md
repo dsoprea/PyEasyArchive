@@ -52,16 +52,24 @@ Task List
 Examples
 --------
 
-To create a physical archive from physical files:
+To extract to the current directory from a physical file (and print each 
+relative filepath):
 
 ```python
 import libarchive
 
-for entry in libarchive.create(
-                '7z', 
-                ['/etc/profile'], 
-                'create.7z'):
-    print("Adding: %s" % (entry))
+for entry in libarchive.file_pour('/tmp/test.zip'):
+    print(e)
+```
+
+To extract to the current directory from memory:
+
+```python
+import libarchive
+
+with open('/tmp/test.zip', 'rb') as f:
+    for entry in libarchive.memory_pour(f.read()):
+        print(e)
 ```
 
 To read files from a physical archive:
@@ -76,7 +84,7 @@ with libarchive.file_reader('test.7z') as e:
                 f.write(block)
 ```
 
-To read files from a memory-hosted archive:
+To read files from memory:
 
 ```python
 import libarchive
@@ -90,7 +98,19 @@ with open('test.7z', 'rb') as f:
                     f.write(block)
 ```
 
-To create an archive in memory:
+To create a physical archive from physical files:
+
+```python
+import libarchive
+
+for entry in libarchive.create(
+                '7z', 
+                ['/etc/profile'], 
+                'create.7z'):
+    print(entry)
+```
+
+To create an archive in memory from physical files:
 
 ```python
 with open('/tmp/new.7z', 'wb') as f:
@@ -102,7 +122,7 @@ with open('/tmp/new.7z', 'wb') as f:
                     writer,
                     format_name='7z', 
                     files=['/etc/profile']):
-        print("Adding: %s" % (entry))
+        print(entry)
 ```
 
 Testing

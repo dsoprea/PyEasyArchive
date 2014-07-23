@@ -26,8 +26,8 @@ configure_logging()
 
 os.environ['DYLD_LIBRARY_PATH'] = '/Users/dustin/build/libarchive/build/libarchive'
 
-import libarchive
-import libarchive.constants.archive
+import libarchive.public
+import libarchive.constants
 
 #with libarchive.file_enumerator('test.7z') as e:
 #    for entry in e:
@@ -53,11 +53,14 @@ import libarchive.constants.archive
 #                for block in entry.get_blocks():
 #                    f.write(block)
 
-#for entry in libarchive.create_file(
-#                'create.7z',
-#                '7z', 
-#                ['/etc/profile']):
-#    print("Adding: %s" % (entry))
+def create_7z():
+    for entry in libarchive.public.create_file(
+                    'create.7z',
+                    libarchive.constants.ARCHIVE_FORMAT_7ZIP, 
+                    ['/etc/profile']):
+        print("Adding: %s" % (entry))
+
+#create_7z()
 
 #with open('/tmp/new.7z', 'wb') as f:
 #    def writer(buffer_, length):
@@ -84,9 +87,9 @@ import libarchive.constants.archive
 def expand_deb_memory():
     with open('/Users/dustin/Downloads/op-adam-665.deb', 'rb') as f:
         buffer_ = f.read()
-        with libarchive.memory_reader(
+        with libarchive.public.memory_reader(
                 buffer_,
-    #            format_code=libarchive.constants.archive.ARCHIVE_FORMAT_ZIP
+    #            format_code=libarchive.constants.ARCHIVE_FORMAT_ZIP
             ) as e:
             for entry in e:
                 path = '/tmp/deb/' + str(entry)
@@ -104,10 +107,10 @@ def expand_deb_memory():
 
     with open('/tmp/deb/data.tar.gz', 'rb') as f:
         buffer_ = f.read()
-        with libarchive.memory_reader(
+        with libarchive.public.memory_reader(
                 buffer_,
-                format_code=libarchive.constants.archive.ARCHIVE_FORMAT_TAR_USTAR, 
-                filter_code=libarchive.constants.archive.ARCHIVE_FILTER_GZIP
+                format_code=libarchive.constants.ARCHIVE_FORMAT_TAR_USTAR, 
+                filter_code=libarchive.constants.ARCHIVE_FILTER_GZIP
             ) as e:
             for entry in e:
                 path = '/tmp/data/' + str(entry)
@@ -123,14 +126,16 @@ def expand_deb_memory():
                 elif os.path.exists(path) is False:
                     os.mkdir(path)
 
+expand_deb_memory()
+
 def expand_deb_file():
-    with libarchive.file_reader('/Users/dustin/Downloads/op-adam-665.deb') as e:
+    with libarchive.public.file_reader('/Users/dustin/Downloads/op-adam-665.deb') as e:
         for entry in e:
             with open('/tmp/deb/' + str(entry), 'wb') as f:
                 for block in entry.get_blocks():
                     f.write(block)
 
-    with libarchive.file_reader('/tmp/deb/data.tar.gz') as e:
+    with libarchive.public.file_reader('/tmp/deb/data.tar.gz') as e:
         for entry in e:
             path = '/tmp/data/' + str(entry)
 
@@ -145,28 +150,36 @@ def expand_deb_file():
             elif os.path.exists(path) is False:
                 os.mkdir(path)
 
+expand_deb_file()
+
 def pour_deb_file():
     os.chdir('/tmp/deb')
-    for e in libarchive.file_pour('/Users/dustin/Downloads/op-adam-665.deb'):
-        print(e)
+    for e in libarchive.public.file_pour('/Users/dustin/Downloads/op-adam-665.deb'):
+        #print(e)
+        pass
 
-    print('')
+    #print('')
 
     os.chdir('/tmp/data')
-    for e in libarchive.file_pour('/tmp/deb/data.tar.gz'):
-        print(e)
+    for e in libarchive.public.file_pour('/tmp/deb/data.tar.gz'):
+        #print(e)
+        pass
+
+pour_deb_file()
 
 def pour_deb_memory():
     os.chdir('/tmp/deb')
     with open('/Users/dustin/Downloads/op-adam-665.deb', 'rb') as f:
-        for e in libarchive.memory_pour(f.read()):
-            print(e.filetype)
+        for e in libarchive.public.memory_pour(f.read()):
+            #print(e.filetype)
+            pass
 
-#    print('')
-#
-#    os.chdir('/tmp/data')
-#    with open('/tmp/deb/data.tar.gz', 'rb') as f:
-#        for e in libarchive.memory_pour(f.read()):
-#            print(e)
+    #print('')
+
+    os.chdir('/tmp/data')
+    with open('/tmp/deb/data.tar.gz', 'rb') as f:
+        for e in libarchive.public.memory_pour(f.read()):
+            #print(e)
+            pass
 
 pour_deb_memory()

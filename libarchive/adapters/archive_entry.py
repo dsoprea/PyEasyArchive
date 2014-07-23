@@ -1,5 +1,7 @@
 import ctypes
 
+import libarchive.constants.archive_entry
+import libarchive.types.archive_entry
 import libarchive.calls.archive_entry
 
 def _archive_entry_pathname(entry):
@@ -29,6 +31,9 @@ def _archive_entry_set_pathname(entry, name):
     libarchive.calls.archive_entry.c_archive_entry_set_pathname(
         entry, 
         ctypes.c_char_p(name))
+
+def _archive_entry_filetype(entry):
+    return libarchive.calls.archive_entry.c_archive_entry_filetype(entry)
 
 
 class ArchiveEntry(object):
@@ -65,7 +70,6 @@ class ArchiveEntry(object):
     def is_consumed(self):
         return self.__is_consumed
 
-
     @property
     def pathname(self):
         return _archive_entry_pathname(self.__entry_res)
@@ -81,3 +85,9 @@ class ArchiveEntry(object):
     @property
     def size(self):
         return _archive_entry_size(self.__entry_res)
+
+    @property
+    def filetype(self):
+        filetype = _archive_entry_filetype(self.__entry_res)
+        flags = dict([(k, (v & filetype) > 0) for (k, v) in libarchive.constants.archive_entry.FILETYPES.items()])
+        return libarchive.types.archive_entry.ENTRY_FILETYPE(**flags)

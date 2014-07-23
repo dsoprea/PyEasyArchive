@@ -8,6 +8,10 @@ import libarchive.calls.archive_read
 import libarchive.calls.archive_write
 import libarchive.calls.archive_general
 import libarchive.adapters.archive_entry
+import libarchive.adapters.archive_read_append_filter
+import libarchive.adapters.archive_read_support_filter_all
+import libarchive.adapters.archive_read_set_format
+import libarchive.adapters.archive_read_support_format_all
 
 from libarchive.calls.archive_general import c_archive_error_string
 
@@ -16,6 +20,9 @@ _logger = logging.getLogger(__name__)
 # TODO(dustin): We might have to switch most of our c_char_p references to 
 #               POINTER(c_char), since we're often not using zero-terminated 
 #               strings.
+
+# TODO(dustin): Is there a cheap way to detect the archive format/filters, for 
+#               utility reasons?
 
 def _archive_read_new():
     archive = libarchive.calls.archive_read.c_archive_read_new()
@@ -98,10 +105,11 @@ def _archive_read_free(archive):
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
-def _archive_write_set_format_7zip(archive):
+def _archive_read_set_format(archive, code):
     try:
-        return libarchive.calls.archive_read.c_archive_write_set_format_7zip(
-                archive)
+        return libarchive.calls.archive_read.c_archive_read_set_format(
+                archive, 
+                code)
     except:
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
@@ -189,9 +197,17 @@ def _read_by_block(archive_res):
                 ctypes.byref(offset))
 
         if r == libarchive.constants.archive.ARCHIVE_OK:
-            yield buffer_.value[0:num.value]
+            block = ctypes.string_at(buffer_, num.value)
+            assert len(block) == num.value
+
+            yield block
+
         elif r == libarchive.constants.archive.ARCHIVE_EOF:
             break
+
+        else:
+            raise ValueError("Read failed (archive_read_data_block): (%d)" % 
+                             (r,))
 
 
 class _ArchiveEntryItReadable(libarchive.adapters.archive_entry.ArchiveEntry):
@@ -222,26 +238,32 @@ class _ArchiveEntryItState(_ArchiveEntryItReadable):
     def selected(self):
         return self.__selected
 
-_READ_FILTER_MAP = {
-        'all': _archive_read_support_filter_all,
-    }
+def _set_read_context(archive_res, format_code=None, filter_code=None):
+    if format_code is not None:
+        _logger.debug("Archive read-format is: (%d)", format_code)
 
-_READ_FORMAT_MAP = {
-        'all': _archive_read_support_format_all,
-        '7z': _archive_read_support_format_7zip,
-    }
+        libarchive.adapters.archive_read_set_format.archive_read_set_format(
+            archive_res, 
+            format_code)
+    else:
+        _logger.debug("Archive read-format is: <ANY>")
 
-def _set_read_context(archive_res, filter_name, format_name):
-    filter_ = _READ_FILTER_MAP[filter_name]        
-    _logger.debug("Invoking filter: %s", filter_.__name__)
-    r = filter_(archive_res)
+        libarchive.adapters.archive_read_support_format_all.\
+            archive_read_support_format_all(archive_res)
 
-    format = _READ_FORMAT_MAP[format_name]
-    _logger.debug("Invoking format: %s", format.__name__)
-    r = format(archive_res)
+    if filter_code is not None:
+        _logger.debug("Archive read-filter is: (%d)", filter_code)
+
+        libarchive.adapters.archive_read_append_filter.\
+            archive_read_append_filter(archive_res, filter_code)
+    else:
+        _logger.debug("Archive read-filter is: <ANY>")
+
+        libarchive.adapters.archive_read_support_filter_all.\
+            archive_read_support_filter_all(archive_res)
 
 @contextlib.contextmanager
-def _enumerator(opener, entry_cls, filter_name='all', format_name='all'):
+def _enumerator(opener, entry_cls, format_code=None, filter_code=None):
     """Return an archive enumerator from a user-defined source, using a user-
     defined entry type.
     """
@@ -249,7 +271,7 @@ def _enumerator(opener, entry_cls, filter_name='all', format_name='all'):
     archive_res = _archive_read_new()
 
     try:
-        r = _set_read_context(archive_res, filter_name, format_name)
+        r = _set_read_context(archive_res, format_code, filter_code)
         opener(archive_res)
 
         def it():

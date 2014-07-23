@@ -30,9 +30,10 @@ c_archive_entry_size = libarchive.archive_entry_size
 c_archive_entry_size.argtypes = [c_void_p]
 c_archive_entry_size.restype = c_longlong
 
-# TODO(dustin): We're still not sure whether we should be using 
-#               archive_entry_set_pathname or archive_entry_copy_pathname. 
-#               Their internal logic is identical.
 c_archive_entry_set_pathname = libarchive.archive_entry_set_pathname
 c_archive_entry_set_pathname.argtypes = [c_void_p, c_char_p]
 c_archive_entry_set_pathname.restype = None
+
+c_archive_entry_filetype = libarchive.archive_entry_filetype
+c_archive_entry_filetype.argtypes = [c_void_p]
+c_archive_entry_filetype.restype = c_int

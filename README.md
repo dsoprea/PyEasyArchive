@@ -98,6 +98,44 @@ with open('test.7z', 'rb') as f:
                     f.write(block)
 ```
 
+To specify a format and/or filter for reads (rather than detecting it):
+
+```python
+import libarchive
+
+with open('test.7z', 'rb') as f:
+    buffer_ = f.read()
+    with libarchive.memory_reader(
+            buffer_,
+            format_code=libarchive.constants.archive.ARCHIVE_FORMAT_TAR_USTAR, 
+            filter_code=libarchive.constants.archive.ARCHIVE_FILTER_GZIP
+        ) as e:
+        for entry in e:
+            with open('/tmp/' + str(entry), 'wb') as f:
+                for block in entry.get_blocks():
+                    f.write(block)
+```
+
+To read the "filetype" flag for each entry:
+
+```python
+import libarchive
+
+with open('test.7z', 'rb') as f:
+    buffer_ = f.read()
+    with libarchive.memory_reader(f.read()) as e:
+        for entry in e:
+            print(e.filetype)
+```
+
+The output of this is:
+
+```
+EntryFileType(IFREG=True, IFLNK=True, IFSOCK=True, IFCHR=False, IFBLK=False, IFDIR=False, IFIFO=False)
+EntryFileType(IFREG=True, IFLNK=True, IFSOCK=True, IFCHR=False, IFBLK=False, IFDIR=False, IFIFO=False)
+EntryFileType(IFREG=True, IFLNK=True, IFSOCK=True, IFCHR=False, IFBLK=False, IFDIR=False, IFIFO=False)
+```
+
 To create a physical archive from physical files:
 
 ```python
@@ -124,6 +162,7 @@ with open('/tmp/new.7z', 'wb') as f:
                     files=['/etc/profile']):
         print(entry)
 ```
+
 
 Testing
 -------

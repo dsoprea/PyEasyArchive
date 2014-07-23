@@ -22,11 +22,6 @@ c_archive_read_support_format_all = libarchive.archive_read_support_format_all
 c_archive_read_support_format_all.argtypes = [c_void_p]
 c_archive_read_support_format_all.restype = _check_zero_success
 
-c_archive_read_support_format_7zip = \
-    libarchive.archive_read_support_format_7zip
-c_archive_read_support_format_7zip.argtypes = [c_void_p]
-c_archive_read_support_format_7zip.restype = _check_zero_success
-
 c_archive_read_open_filename = libarchive.archive_read_open_filename
 c_archive_read_open_filename.argtypes = [c_void_p, c_char_p, c_size_t]
 c_archive_read_open_filename.restype = _check_zero_success

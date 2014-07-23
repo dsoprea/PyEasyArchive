@@ -51,11 +51,6 @@ c_archive_write_data_block.argtypes = [
     c_longlong]
 c_archive_write_data_block.restype = _check_zero_success
 
-c_archive_write_set_format_7zip = libarchive.archive_write_set_format_7zip
-c_archive_write_set_format_7zip.argtypes = [c_void_p]
-c_archive_write_set_format_7zip.restype = _check_zero_success
-
-
 c_archive_write_add_filter_bzip2 = libarchive.archive_write_add_filter_bzip2
 c_archive_write_add_filter_bzip2.argtypes = [c_void_p]
 c_archive_write_add_filter_bzip2.restype = _check_zero_success
@@ -72,10 +67,6 @@ c_archive_write_add_filter_gzip.restype = _check_zero_success
 c_archive_write_add_filter_none = libarchive.archive_write_add_filter_none
 c_archive_write_add_filter_none.argtypes = [c_void_p]
 c_archive_write_add_filter_none.restype = _check_zero_success
-
-c_archive_write_set_format_ustar = libarchive.archive_write_set_format_ustar
-c_archive_write_set_format_ustar.argtypes = [c_void_p]
-c_archive_write_set_format_ustar.restype = _check_zero_success
 
 c_archive_write_open_filename = libarchive.archive_write_open_filename
 c_archive_write_open_filename.argtypes = [c_void_p, c_char_p]

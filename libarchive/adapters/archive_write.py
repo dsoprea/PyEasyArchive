@@ -9,6 +9,8 @@ import libarchive.types.archive
 import libarchive.calls.archive_write
 import libarchive.calls.archive_read
 import libarchive.adapters.archive_entry
+import libarchive.adapters.archive_write_set_format
+import libarchive.adapters.archive_write_add_filter
 
 from libarchive.calls.archive_general import c_archive_error_string
 
@@ -75,16 +77,6 @@ def _archive_write_data(archive, data):
         message = c_archive_error_string(archive)
         raise ValueError("No bytes were written. Error? [%s]" % (message))
 
-
-def _archive_write_set_format_7zip(archive):
-    try:
-        libarchive.calls.archive_write.c_archive_write_set_format_7zip(archive)
-    except:
-        message = c_archive_error_string(archive)
-        raise libarchive.exception.ArchiveError(message)
-
-
-
 def _archive_write_add_filter_bzip2(archive):
     try:
         libarchive.calls.archive_write.c_archive_write_add_filter_bzip2(
@@ -111,14 +103,6 @@ def _archive_write_add_filter_gzip(archive):
 def _archive_write_add_filter_none(archive):
     try:
         libarchive.calls.archive_write.c_archive_write_add_filter_none(archive)
-    except:
-        message = c_archive_error_string(archive)
-        raise libarchive.exception.ArchiveError(message)
-
-def _archive_write_set_format_ustar(archive):
-    try:
-        libarchive.calls.archive_write.c_archive_write_set_format_ustar(
-            archive)
     except:
         message = c_archive_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
@@ -194,36 +178,25 @@ def _archive_write_set_bytes_in_last_block(archive, bytes_in_last_block):
         archive,
         bytes_in_last_block)
 
-_WRITE_FILTER_MAP = {
-        None:       _archive_write_add_filter_none,
-        'bz2':      _archive_write_add_filter_bzip2,
-        'compress': _archive_write_add_filter_compress,
-        'gz':       _archive_write_add_filter_gzip,
-    }
+def _set_write_context(archive_res, format_code, filter_code=None):
+    libarchive.archive_write_set_format.archive_write_set_format(
+        archive_res, 
+        format_code)
 
-_WRITE_FORMAT_MAP = {
-        'ustar': _archive_write_set_format_ustar,
-        '7z':    _archive_write_set_format_7zip,
-    }
-
-def _set_write_context(archive_res, filter_name, format_name):
-    filter_ = _WRITE_FILTER_MAP[filter_name]
-    _logger.debug("Invoking filter: %s", filter_.__name__)
-    r = filter_(archive_res)
-
-    format = _WRITE_FORMAT_MAP[format_name]
-    _logger.debug("Invoking format: %s", format.__name__)
-    r = format(archive_res)
+    if filter_code is not None:
+        libarchive.adapters.archive_write_add_filter.archive_write_add_filter(
+            archive_res, 
+            filter_code)
 
 def _create(opener,
-            format_name, 
+            format_code, 
             files, 
-            filter_name=None, 
+            filter_code=None, 
             block_size=16384):
     """Create an archive from a collection of files (not recursive)."""
 
     a = _archive_write_new()
-    _set_write_context(a, filter_name, format_name)
+    _set_write_context(a, format_code, filter_code)
 
     _logger.debug("Opening archive (create).")
     opener(a)

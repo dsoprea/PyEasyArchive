@@ -43,6 +43,10 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['dev', 'tests']),
     include_package_data=True,
     zip_safe=False,
+    package_data={
+        'libarchive': ['resources/README.rst',
+                       'resources/requirements.txt'],
+    },
     install_requires=install_requires,
     cmdclass={ 'install': _custom_install }
 )

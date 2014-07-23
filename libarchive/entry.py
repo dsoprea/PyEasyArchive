@@ -38,6 +38,10 @@ class ArchiveEntry(object):
             yield buf.raw[0:r]
 
     @property
+    def mtime(self):
+        return ffi.entry_mtime(self._entry_p)
+
+    @property
     def pathname(self):
         return ffi.entry_pathname_w(self._entry_p)
 

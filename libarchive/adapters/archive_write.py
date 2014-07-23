@@ -179,7 +179,7 @@ def _archive_write_set_bytes_in_last_block(archive, bytes_in_last_block):
         bytes_in_last_block)
 
 def _set_write_context(archive_res, format_code, filter_code=None):
-    libarchive.archive_write_set_format.archive_write_set_format(
+    libarchive.adapters.archive_write_set_format.archive_write_set_format(
         archive_res, 
         format_code)
 

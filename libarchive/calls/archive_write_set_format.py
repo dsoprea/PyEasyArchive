@@ -1,6 +1,7 @@
 from ctypes import *
 
 from libarchive.library import libarchive
+from libarchive.constants.archive import *
 
 def _check_zero_success(value):
     if value != ARCHIVE_OK:

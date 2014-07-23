@@ -2,7 +2,8 @@ import os
 import os.path
 import shutil
 
-import libarchive
+import libarchive.public
+import libarchive.constants
 
 _TEMP_PATH = os.path.join('/tmp', 'libarchive_expand')
 _TEST_CREATE_ARCHIVE = os.path.join(_TEMP_PATH, 'create.7z')
@@ -18,9 +19,9 @@ def _teardown():
         shutil.rmtree(_TEMP_PATH)
 
 def test_create_to_file_from_file():
-    for entry in libarchive.create_file(
+    for entry in libarchive.public.create_file(
                     _TEST_CREATE_ARCHIVE,
-                    '7z', 
+                    libarchive.constants.ARCHIVE_FORMAT_7ZIP, 
                     ['/etc/hosts']):
         pass
 
@@ -33,12 +34,12 @@ test_create_to_file_from_file.tearDown = _teardown
 #        return length
 #
 #    with open(_TEST_CREATE_ARCHIVE, 'wb') as f:
-#        for entry in libarchive.create_generic(
+#        for entry in libarchive.public.create_generic(
 #                        writer,
-#                        format_name='7z', 
+#                        format_code=libarchive.constants.ARCHIVE_FORMAT_7ZIP, 
 #                        files=['/etc/hosts']):
 #            pass
-
+#
 #test_create_to_memory_from_file.setUp = _setup
 #test_create_to_memory_from_file.tearDown = _teardown
 

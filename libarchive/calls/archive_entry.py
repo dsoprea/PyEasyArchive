@@ -37,3 +37,7 @@ c_archive_entry_set_pathname.restype = None
 c_archive_entry_filetype = libarchive.archive_entry_filetype
 c_archive_entry_filetype.argtypes = [c_void_p]
 c_archive_entry_filetype.restype = c_int
+
+c_archive_entry_mtime = libarchive.archive_entry_mtime
+c_archive_entry_mtime.argtypes = [c_void_p]
+c_archive_entry_mtime.restype = c_long

@@ -1,4 +1,5 @@
 import ctypes
+import datetime
 
 import libarchive.constants.archive_entry
 import libarchive.types.archive_entry
@@ -34,6 +35,9 @@ def _archive_entry_set_pathname(entry, name):
 
 def _archive_entry_filetype(entry):
     return libarchive.calls.archive_entry.c_archive_entry_filetype(entry)
+
+def _archive_entry_mtime(entry):
+    return libarchive.calls.archive_entry.c_archive_entry_mtime(entry)
 
 
 class ArchiveEntry(object):
@@ -89,5 +93,13 @@ class ArchiveEntry(object):
     @property
     def filetype(self):
         filetype = _archive_entry_filetype(self.__entry_res)
-        flags = dict([(k, (v & filetype) > 0) for (k, v) in libarchive.constants.archive_entry.FILETYPES.items()])
+        flags = dict([(k, (v & filetype) > 0) 
+                      for (k, v) 
+                      in libarchive.constants.archive_entry.FILETYPES.items()])
+
         return libarchive.types.archive_entry.ENTRY_FILETYPE(**flags)
+
+    @property
+    def mtime(self):
+        return datetime.datetime.fromtimestamp(
+                                    _archive_entry_mtime(self.__entry_res))

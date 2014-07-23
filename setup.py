@@ -1,5 +1,6 @@
 import setuptools
 import setuptools.command.install
+import os.path
 
 def _pre_install():
     print("Verifying that the library is accessible.")

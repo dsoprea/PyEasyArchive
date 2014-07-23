@@ -1,5 +1,6 @@
 /libarchive.egg-info/
 /dist/
+/build/
 *.pyc
 
 /bin/

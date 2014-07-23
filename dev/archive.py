@@ -113,6 +113,9 @@ def expand_deb_memory():
                 filter_code=libarchive.constants.ARCHIVE_FILTER_GZIP
             ) as e:
             for entry in e:
+#                print(entry)
+#                print(entry.mtime)
+
                 path = '/tmp/data/' + str(entry)
 
                 if not entry.filetype.IFDIR:
@@ -150,7 +153,7 @@ def expand_deb_file():
             elif os.path.exists(path) is False:
                 os.mkdir(path)
 
-expand_deb_file()
+#expand_deb_file()
 
 def pour_deb_file():
     os.chdir('/tmp/deb')
@@ -165,7 +168,7 @@ def pour_deb_file():
         #print(e)
         pass
 
-pour_deb_file()
+#pour_deb_file()
 
 def pour_deb_memory():
     os.chdir('/tmp/deb')
@@ -182,4 +185,4 @@ def pour_deb_memory():
             #print(e)
             pass
 
-pour_deb_memory()
+#pour_deb_memory()

@@ -63,7 +63,7 @@ relative filepath)::
     import libarchive.public
 
     for entry in libarchive.public.file_pour('/tmp/test.zip'):
-        print(e)
+        print(entry)
 
 To extract to the current directory from memory::
 
@@ -71,7 +71,7 @@ To extract to the current directory from memory::
 
     with open('/tmp/test.zip', 'rb') as f:
         for entry in libarchive.public.memory_pour(f.read()):
-            print(e)
+            print(entry)
 
 To read files from a physical archive::
 
@@ -120,7 +120,7 @@ To read the "filetype" flag for each entry::
         buffer_ = f.read()
         with libarchive.public.memory_reader(f.read()) as e:
             for entry in e:
-                print(e.filetype)
+                print(entry.filetype)
 
 The output of this is::
 

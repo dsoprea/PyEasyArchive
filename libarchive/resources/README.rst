@@ -39,18 +39,18 @@ For example::
 Task List
 ---------
 
-====  =================================================
-Done  Task
-====  =================================================
-X     Read entries from physical file
-X     Read entries from archive hosted in memory buffer
-X     Write physical files from archive
-X     Load memory buffer from archive
-X     Populate physical archive from physical files
-X     Populate archive hosted in memory buffer
--     Populate archive entries from memory buffers
--     Fill-out the entry object's information/accessors
-====  =================================================
+=====  =================================================
+Done   Task
+=====  =================================================
+  X    Read entries from physical file
+  X    Read entries from archive hosted in memory buffer
+  X    Write physical files from archive
+  X    Load memory buffer from archive
+  X    Populate physical archive from physical files
+  X    Populate archive hosted in memory buffer
+       Populate archive entries from memory buffers
+       Fill-out the entry object's information/accessors
+=====  =================================================
 
 
 --------

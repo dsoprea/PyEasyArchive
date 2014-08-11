@@ -48,8 +48,8 @@ Done   Task
   X    Load memory buffer from archive
   X    Populate physical archive from physical files
   X    Populate archive hosted in memory buffer
-       Populate archive entries from memory buffers
-       Fill-out the entry object's information/accessors
+  _    Populate archive entries from memory buffers
+  _    Fill-out the entry object's information/accessors
 =====  =================================================
 
 

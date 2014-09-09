@@ -3,4 +3,4 @@ from libarchive.adapters.archive_read import \
     memory_enumerator, memory_reader, memory_pour
 
 from libarchive.adapters.archive_write import \
-    create_file, create_generic
+    create_file_from_files, create_stream_from_files, create_generic

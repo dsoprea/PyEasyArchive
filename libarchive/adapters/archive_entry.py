@@ -39,6 +39,9 @@ def _archive_entry_filetype(entry):
 def _archive_entry_mtime(entry):
     return libarchive.calls.archive_entry.c_archive_entry_mtime(entry)
 
+def _archive_entry_perm(entry):
+    return libarchive.calls.archive_entry.c_archive_entry_perm(entry)
+
 
 class ArchiveEntry(object):
     def __init__(self, reader_res, entry_res):
@@ -103,3 +106,7 @@ class ArchiveEntry(object):
     def mtime(self):
         return datetime.datetime.fromtimestamp(
                                     _archive_entry_mtime(self.__entry_res))
+
+    @property
+    def perm(self):
+        return _archive_entry_perm(self.__entry_res)

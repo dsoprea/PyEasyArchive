@@ -26,13 +26,13 @@ PyPI::
 Notes
 -----
 
-The Ubuntu *libarchive* package maintainer refuses to place a "libarchive.so" 
-symlink, so you'll have to place this yourself. Depending on your Ubuntu, this 
-can be libarchive.so.12, libarchive.so.13, or libarchive.so.14 .
+- The Ubuntu *libarchive* package maintainer refuses to place a "libarchive.so" symlink, so you'll have to place this yourself. Depending on your Ubuntu, this can be libarchive.so.12, libarchive.so.13, or libarchive.so.14 .
 
-For example::
+  For example::
 
     /usr/lib/x86_64-linux-gnu$ sudo ln -s libarchive.so.12 libarchive.so
+
+- Encryption is not currently supported since it's not supported in the underlying library (*libarchive*). Note `this inquiry <https://github.com/libarchive/libarchive/issues/579>`_ and the `wishlist item <https://github.com/libarchive/libarchive/wiki/WishList#encrypted-backup-support>`_.
 
 
 ---------

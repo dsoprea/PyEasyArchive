@@ -41,3 +41,7 @@ c_archive_entry_filetype.restype = c_int
 c_archive_entry_mtime = libarchive.archive_entry_mtime
 c_archive_entry_mtime.argtypes = [c_void_p]
 c_archive_entry_mtime.restype = c_long
+
+c_archive_entry_perm = libarchive.archive_entry_perm
+c_archive_entry_perm.argtypes = [c_void_p]
+c_archive_entry_perm.restype = c_int

@@ -96,7 +96,7 @@ class ArchiveEntry(object):
     @property
     def filetype(self):
         filetype = _archive_entry_filetype(self.__entry_res)
-        flags = dict([(k, (v & filetype) > 0) 
+        flags = dict([(k, v == filetype) 
                       for (k, v) 
                       in libarchive.constants.archive_entry.FILETYPES.items()])
 

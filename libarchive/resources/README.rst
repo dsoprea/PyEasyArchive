@@ -160,6 +160,6 @@ To create an archive in memory from physical files::
 Testing
 -------
 
-*libarchive* uses [nose](https://nose.readthedocs.org) for testing::
+*libarchive* uses `nose <https://nose.readthedocs.org>`_ for testing::
 
     tests$ ./run.py

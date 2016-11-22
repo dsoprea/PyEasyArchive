@@ -1,16 +1,25 @@
-**To eliminate some problems with installation, the public API has been moved from the `libarchive` package to `libarchive.public`, and will be reflected in the next release. This is backwards-incompatible, but would otherwise prevent the install due to broken dependencies during install.**
+**To eliminate some problems with installation, the public API has
+been moved from the libarchive package to libarchive.public, and will
+be reflected in the next release. This is backwards-incompatible, but
+would otherwise prevent the install due to broken dependencies during
+install.**
 
 ------------
 Introduction
 ------------
 
-A ctypes-based adapter to libarchive. The source-code is written to be clear 
+A ctypes-based adapter to libarchive. The source code is written to be clear
 and intuitive.
 
 Even 7-Zip is supported for both reading and writing.
 
 I could definitely use some help, if any is available. Completeness will 
 require a bit more work (see *libarchive*'s archive.h and archive_entry.h).
+
+Project page: https://github.com/dsoprea/PyEasyArchive
+
+The upsteam C library libarchive has a home page at
+http://www.libarchive.org/
 
 
 ------------
@@ -20,6 +29,9 @@ Installation
 PyPI::
 
     $ sudo pip install libarchive
+
+Python 2.7 or newer is required.  You also need a recent enough
+*libarchive* (in particular, the "legacy" version 2 is not supported).
 
 
 -----
@@ -50,6 +62,8 @@ Done   Task
   X    Populate archive hosted in memory buffer
   _    Populate archive entries from memory buffers
   _    Fill-out the entry object's information/accessors
+  _    Read encrypted archives
+  -    Write encrypted archives
 =====  =================================================
 
 
@@ -160,6 +174,6 @@ To create an archive in memory from physical files::
 Testing
 -------
 
-*libarchive* uses [nose](https://nose.readthedocs.org) for testing::
+*libarchive* uses `nose <https://nose.readthedocs.org>`_ for testing::
 
     tests$ ./run.py

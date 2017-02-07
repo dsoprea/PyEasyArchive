@@ -1,57 +1,15 @@
 import setuptools
 import setuptools.command.install
 import os.path
-import platform
-import json
-import subprocess
-
 def _pre_install():
     print("Verifying that the library is accessible.")
 
     try:
-        _check_homebrew()
         import libarchive.library
     except OSError as e:
         print("Library can not be loaded: %s" % (str(e)))
         raise
 
-def _check_homebrew():
-    # make sure the environment variable is not already set
-    if 'LA_LIBRARY_FILEPATH' in os.environ:
-        return False
-    if platform.system() == 'Darwin':
-        # let's check for homebrew
-        try:
-            subprocess.check_call('brew')
-        except Exception as e:
-            # no homebrew installed, let's bail
-            return False
-        try:
-            # From homebrew on libarchive:
-            # This formula is keg-only, which means it was not symlinked
-            # into /usr/local.
-            #
-            # macOS already provides this software and installing
-            # another version in parallel can cause all kinds of
-            # trouble.
-            #
-            # so... let's see if we can't find it ourselves and set the
-            # envvar
-            # /Usr/local/opt/libarchive/lib/
-            libarchive_info = json.loads(
-                    subprocess.check_output(['brew', 'info', '--json=v1',
-                        'libarchive']))
-            libarchive_version = libarchive_info[0]['installed'][0]['version']
-            # set the direct dylib envvar
-            libarchive_path = path.join(subprocess.check_output([ 'brew',
-                '--cellar', 'libarchive'])[:-1], libarchive_version, 'lib',
-                'libarchive.dylib')
-            os.environ["LA_LIBRARY_FILEPATH"] = libarchive_path
-            return True
-        except Exception as e:
-            return False
-    else:
-        return False
 
 class _custom_install(setuptools.command.install.install):
     def run(self):

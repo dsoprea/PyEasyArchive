@@ -1,5 +1,3 @@
-**To eliminate some problems with installation, the public API has been moved from the `libarchive` package to `libarchive.public`, and will be reflected in the next release. This is backwards-incompatible, but would otherwise prevent the install due to broken dependencies during install.**
-
 ------------
 Introduction
 ------------
@@ -33,6 +31,8 @@ Notes
     apt-get install libarchive-dev
     
 - Encryption is not currently supported since it's not supported in the underlying library (*libarchive*). Note `this inquiry <https://github.com/libarchive/libarchive/issues/579>`_ and the `wishlist item <https://github.com/libarchive/libarchive/wiki/WishList#encrypted-backup-support>`_.
+
+- OS X has a system version of `libarchive` that is very old. As a result, many users have encountered issues importing an alternate one. Specifically, often they install a different one via Brew but this will not be [sym]linked into the system like other packages. This is a precaution taken by Brew to prevent undefined behavior in the parts of OS X that depend on the factory version. In order to work around this, you should set `LD_LIBRARY_PATH` (or prepend if `LD_LIBRARY_PATH` is already defined) with the path of the location of the library version you want to use. You'll want to set this from your user-profile script (unless your environment can not support this and you need to prepend something like "LD_LIBRARY_PATH=/some/path" to the front of the command-line or set it via `os.environ` above where you import this package). A `tool <tools/brew_find_libarchive>`_ has been provided that will print the path of the first version of `libarchive` installed via Brew. Just copy-and-paste it.
 
 
 ---------
@@ -160,6 +160,6 @@ To create an archive in memory from physical files::
 Testing
 -------
 
-*libarchive* uses [nose](https://nose.readthedocs.org) for testing::
+*libarchive* uses `nose <https://nose.readthedocs.org>`_ for testing::
 
     tests$ ./run.py

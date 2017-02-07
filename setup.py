@@ -16,9 +16,10 @@ def _pre_install():
         raise
 
 def _check_homebrew():
+    # make sure the environment variable is not already set
+    if 'LA_LIBRARY_FILEPATH' in os.environ:
+        return False
     if platform.system() == 'Darwin':
-        #export LA_LIBRARY_FILEPATH="$(brew --prefix)/opt/libarchive/lib/libarchive.13.dylib"
-        #export LIBARCHIVE_PREFIX="$(brew --prefix)/opt/libarchive"
         # let's check for homebrew
         try:
             subprocess.check_call('brew')
@@ -27,11 +28,15 @@ def _check_homebrew():
             return False
         try:
             # From homebrew on libarchive:
-            # This formula is keg-only, which means it was not symlinked into /usr/local.
+            # This formula is keg-only, which means it was not symlinked
+            # into /usr/local.
             #
-            # macOS already provides this software and installing another version in
-            # parallel can cause all kinds of trouble.
-            # so... let's see if we can't find it ourselves and set the envvar
+            # macOS already provides this software and installing
+            # another version in parallel can cause all kinds of
+            # trouble.
+            #
+            # so... let's see if we can't find it ourselves and set the
+            # envvar
             # /Usr/local/opt/libarchive/lib/
             libarchive_info = json.loads(
                     subprocess.check_output(['brew', 'info', '--json=v1',

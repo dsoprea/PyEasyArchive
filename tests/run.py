@@ -4,7 +4,6 @@ import sys
 sys.path.insert(0, '..')
 
 import os
-import os.path
 import nose
 
 mac_library_path = '/Users/dustin/build/libarchive/build/libarchive'

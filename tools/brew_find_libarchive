@@ -1,0 +1,28 @@
+#!/usr/bin/env python2.7
+
+import sys
+import os
+import json
+import subprocess
+
+command = ['brew', 'info', '--json=v1', 'libarchive']
+
+try:
+    result = subprocess.check_output(command)
+except Exception as e:
+    print("Could not lookup 'libarchive' package info: {0}".format(e.strerror))
+    sys.exit(1)
+
+info = json.loads(result)
+installed_versions = info[0]['installed']
+if len(installed_versions) == 0:
+    print("libarchive is not currently installed via Brew")
+    sys.exit(2)
+
+version = installed_versions[0]['version']
+
+command = ['brew', '--cellar', 'libarchive']
+package_path = subprocess.check_output(command)[:-1]
+
+library_path = os.path.join(package_path, version, 'lib')
+print(library_path)

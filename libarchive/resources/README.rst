@@ -1,4 +1,6 @@
 |Build\_Status|
+|Coverage\_Status|
+
 
 ------------
 Introduction
@@ -169,3 +171,5 @@ Testing
 
 .. |Build_Status| image:: https://travis-ci.org/dsoprea/PyEasyArchive.svg?branch=master
    :target: https://travis-ci.org/dsoprea/PyEasyArchive
+.. |Coverage_Status| image:: https://coveralls.io/repos/github/dsoprea/PyEasyArchive/badge.svg?branch=master
+   :target: https://coveralls.io/github/dsoprea/PyEasyArchive?branch=master

@@ -1,13 +1,15 @@
+|Build\_Status|
+
 ------------
 Introduction
 ------------
 
-A ctypes-based adapter to libarchive. The source-code is written to be clear 
+A ctypes-based adapter to libarchive. The source-code is written to be clear
 and intuitive.
 
 Even 7-Zip is supported for both reading and writing.
 
-I could definitely use some help, if any is available. Completeness will 
+I could definitely use some help, if any is available. Completeness will
 require a bit more work (see *libarchive*'s archive.h and archive_entry.h).
 
 
@@ -29,7 +31,7 @@ Notes
   For example::
 
     apt-get install libarchive-dev
-    
+
 - Encryption is not currently supported since it's not supported in the underlying library (*libarchive*). Note `this inquiry <https://github.com/libarchive/libarchive/issues/579>`_ and the `wishlist item <https://github.com/libarchive/libarchive/wiki/WishList#encrypted-backup-support>`_.
 
 - OS X has a system version of `libarchive` that is very old. As a result, many users have encountered issues importing an alternate one. Specifically, often they install a different one via Brew but this will not be [sym]linked into the system like other packages. This is a precaution taken by Brew to prevent undefined behavior in the parts of OS X that depend on the factory version. In order to work around this, you should set `LD_LIBRARY_PATH` (or prepend if `LD_LIBRARY_PATH` is already defined) with the path of the location of the library version you want to use. You'll want to set this from your user-profile script (unless your environment can not support this and you need to prepend something like "LD_LIBRARY_PATH=/some/path" to the front of the command-line or set it via `os.environ` above where you import this package). A `tool <tools/brew_find_libarchive>`_ has been provided that will print the path of the first version of `libarchive` installed via Brew. Just copy-and-paste it. Thanks to @SkyLeach for discussing the issue and treatments.
@@ -57,7 +59,7 @@ Done   Task
 Examples
 --------
 
-To extract to the current directory from a physical file (and print each 
+To extract to the current directory from a physical file (and print each
 relative filepath)::
 
     import libarchive.public
@@ -104,7 +106,7 @@ To specify a format and/or filter for reads (rather than detecting it)::
         buffer_ = f.read()
         with libarchive.public.memory_reader(
                 buffer_,
-                format_code=libarchive.constants.ARCHIVE_FORMAT_TAR_USTAR, 
+                format_code=libarchive.constants.ARCHIVE_FORMAT_TAR_USTAR,
                 filter_code=libarchive.constants.ARCHIVE_FILTER_GZIP
             ) as e:
             for entry in e:
@@ -133,11 +135,13 @@ To create a physical archive from physical files::
     import libarchive.public
     import libarchive.constants
 
-    for entry in libarchive.public.create_file(
-                    'create.7z',
-                    libarchive.constants.ARCHIVE_FORMAT_7ZIP, 
-                    ['/etc/profile']):
-        print(entry)
+    libarchive.public.create_file(
+        'create.7z',
+        libarchive.constants.ARCHIVE_FORMAT_7ZIP,
+        ['/etc/profile']):
+
+The path of the file to add will be recorded verbatim.
+
 
 To create an archive in memory from physical files::
 
@@ -149,11 +153,10 @@ To create an archive in memory from physical files::
             f.write(buffer_)
             return length
 
-        for entry in libarchive.public.create_generic(
-                        writer,
-                        format_name=libarchive.constants.ARCHIVE_FORMAT_7ZIP, 
-                        files=['/etc/profile']):
-            print(entry)
+        libarchive.public.create_generic(
+            writer,
+            format_name=libarchive.constants.ARCHIVE_FORMAT_7ZIP,
+            files=['/etc/profile']):
 
 
 -------
@@ -163,3 +166,6 @@ Testing
 *libarchive* uses `nose <https://nose.readthedocs.org>`_ for testing::
 
     tests$ ./run.py
+
+.. |Build_Status| image:: https://travis-ci.org/dsoprea/PyEasyArchive.svg?branch=master
+   :target: https://travis-ci.org/dsoprea/PyEasyArchive

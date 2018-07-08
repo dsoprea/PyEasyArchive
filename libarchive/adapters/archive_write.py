@@ -33,7 +33,7 @@ def _archive_write_disk_new():
 def _archive_write_disk_set_options(archive, flags):
     try:
         libarchive.calls.archive_write.c_archive_write_disk_set_options(
-            archive, 
+            archive,
             flags)
     except:
         message = c_archive_error_string(archive)
@@ -69,8 +69,8 @@ def _archive_write_free(archive):
 
 def _archive_write_data(archive, data):
     n = libarchive.calls.archive_write.c_archive_write_data(
-            archive, 
-            ctypes.cast(ctypes.c_char_p(data), ctypes.c_void_p), 
+            archive,
+            ctypes.cast(ctypes.c_char_p(data), ctypes.c_void_p),
             len(data))
 
     if n == 0:
@@ -110,7 +110,7 @@ def _archive_write_add_filter_none(archive):
 def _archive_write_open_filename(archive, filepath):
     try:
         libarchive.calls.archive_write.c_archive_write_open_filename(
-            archive, 
+            archive,
             filepath)
     except:
         message = c_archive_error_string(archive)
@@ -119,7 +119,7 @@ def _archive_write_open_filename(archive, filepath):
 def _archive_write_header(archive, entry):
     try:
         return libarchive.calls.archive_write.c_archive_write_header(
-                archive, 
+                archive,
                 entry)
     except:
         message = c_archive_error_string(archive)
@@ -137,8 +137,8 @@ def _archive_write_open_memory(archive, buffer, counter):
     try:
         libarchive.calls.archive_write.c_archive_write_open_memory(
             archive,
-            ctypes.cast(ctypes.c_char_p(buffer), ctypes.c_void_p), 
-            len(buffer), 
+            ctypes.cast(ctypes.c_char_p(buffer), ctypes.c_void_p),
+            len(buffer),
             ctypes.byref(counter))
     except:
         message = c_archive_error_string(archive)
@@ -155,22 +155,22 @@ def _archive_write_open_fd(archive, stream=sys.stdout):
 
 def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
     libarchive.calls.archive_write.c_archive_write_open(
-        archive, 
-        context, 
+        archive,
+        context,
         libarchive.types.archive.ARCHIVE_OPEN_CALLBACK(open_cb),
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
         libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
 
 def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
     libarchive.calls.archive_write.c_archive_write_open_memory(
-        archive, 
-        buffer_, 
-        len(buffer_), 
+        archive,
+        buffer_,
+        len(buffer_),
         consumed_size_ptr)
 
 def _archive_write_set_bytes_per_block(archive, bytes_per_block):
     libarchive.calls.archive_write.c_archive_write_set_bytes_per_block(
-        archive, 
+        archive,
         bytes_per_block)
 
 def _archive_write_set_bytes_in_last_block(archive, bytes_in_last_block):
@@ -180,18 +180,18 @@ def _archive_write_set_bytes_in_last_block(archive, bytes_in_last_block):
 
 def _set_write_context(archive_res, format_code, filter_code=None):
     libarchive.adapters.archive_write_set_format.archive_write_set_format(
-        archive_res, 
+        archive_res,
         format_code)
 
     if filter_code is not None:
         libarchive.adapters.archive_write_add_filter.archive_write_add_filter(
-            archive_res, 
+            archive_res,
             filter_code)
 
 def _create(opener,
-            format_code, 
-            files, 
-            filter_code=None, 
+            format_code,
+            files,
+            filter_code=None,
             block_size=16384):
     """Create an archive from a collection of files (not recursive)."""
 
@@ -205,16 +205,21 @@ def _create(opener,
 # This was set on an instance of *disk* that wasn't used. Do we still need it?
 #_archive_read_disk_set_standard_lookup(disk)
 
+    # We used to yield this, but that necessitated users always flattening the
+    # response. This means we don't have to, but we still have to return an
+    # enumerable in order to maintain compatibility.
+    added = []
+
     for filepath in files:
         disk = libarchive.calls.archive_read.c_archive_read_disk_new()
         libarchive.calls.archive_read.c_archive_read_disk_open(
-            disk, 
+            disk,
             filepath)
 
         while 1:
             entry = libarchive.calls.archive_entry.c_archive_entry_new()
             r = libarchive.calls.archive_read.c_archive_read_next_header2(
-                    disk, 
+                    disk,
                     entry)
 
             if r == libarchive.constants.archive.ARCHIVE_EOF:
@@ -223,18 +228,18 @@ def _create(opener,
                 message = c_archive_error_string(disk)
                 raise libarchive.exception.ArchiveError(
                         "Could not build header from physical source file "
-                        "during create: (%d) [%s]" % 
+                        "during create: (%d) [%s]" %
                         (r, message))
 
             wrapped = libarchive.adapters.archive_entry.ArchiveEntry(
-                        disk, 
+                        disk,
                         entry)
 
             # Strip leading slash so it stores as a relative path.
             if os.path.isabs(wrapped.pathname) is True:
                 wrapped.pathname = wrapped.pathname[1:]
 
-            yield wrapped
+            added.append(wrapped)
 
             libarchive.calls.archive_read.c_archive_read_disk_descend(disk)
 
@@ -258,6 +263,8 @@ def _create(opener,
     _archive_write_close(a)
     _archive_write_free(a)
 
+    return added
+
 def create_file(filepath, *args, **kwargs):
     def opener(archive):
         _archive_write_open_filename(archive, filepath)
@@ -271,8 +278,8 @@ def create_stream(s, *args, **kwargs):
     return _create(opener, *args, **kwargs)
 
 def create_generic(write_cb,
-                   open_cb=None, 
-                   close_cb=None, 
+                   open_cb=None,
+                   close_cb=None,
                    block_size=16384,
                    *args,
                    **kwargs):
@@ -283,7 +290,7 @@ def create_generic(write_cb,
     def open_cb_internal(archive, context):
         if open_cb is not None:
             open_cb()
-        
+
         return libarchive.constants.archive.ARCHIVE_OK
 
     def close_cb_internal(archive, context):
@@ -295,11 +302,11 @@ def create_generic(write_cb,
     def opener(archive):
         _archive_write_set_bytes_in_last_block(archive, 1)
         _archive_write_set_bytes_per_block(archive, block_size)
-        
-        _archive_write_open(archive, 
-                            None, 
-                            open_cb_internal, 
-                            write_cb_internal, 
+
+        _archive_write_open(archive,
+                            None,
+                            open_cb_internal,
+                            write_cb_internal,
                             close_cb_internal)
 
     return _create(opener, *args, **kwargs)

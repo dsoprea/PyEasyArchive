@@ -5,12 +5,14 @@ import libarchive.constants.archive_entry
 import libarchive.types.archive_entry
 import libarchive.calls.archive_entry
 
+_ASCII_ENCODING = 'ascii'
+
 def _archive_entry_pathname(entry):
     filepath = libarchive.calls.archive_entry.c_archive_entry_pathname(entry)
     if filepath is None:
         raise ValueError("Could not get entry file-path.")
 
-    return filepath
+    return filepath.decode('ascii')
 
 def archive_entry_new():
     entry = libarchive.calls.archive_entry.c_archive_entry_new()
@@ -29,8 +31,10 @@ def _archive_entry_size(entry):
     return libarchive.calls.archive_entry.c_archive_entry_size(entry)
 
 def _archive_entry_set_pathname(entry, name):
+    name = name.encode(_ASCII_ENCODING)
+
     libarchive.calls.archive_entry.c_archive_entry_set_pathname(
-        entry, 
+        entry,
         ctypes.c_char_p(name))
 
 def _archive_entry_filetype(entry):
@@ -96,8 +100,8 @@ class ArchiveEntry(object):
     @property
     def filetype(self):
         filetype = _archive_entry_filetype(self.__entry_res)
-        flags = dict([(k, v == filetype) 
-                      for (k, v) 
+        flags = dict([(k, v == filetype)
+                      for (k, v)
                       in libarchive.constants.archive_entry.FILETYPES.items()])
 
         return libarchive.types.archive_entry.ENTRY_FILETYPE(**flags)

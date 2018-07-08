@@ -13,7 +13,7 @@ _APP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 # TODO(dustin): Add tests for file and memory pouring.
 
 
-class TestRead(unittest.TestCase):
+class TestArchiveRead(unittest.TestCase):
     def test_enumerate_from_file(self):
         with libarchive.test_support.test_archive() as filepath:
             with libarchive.adapters.archive_read.file_enumerator(filepath) as e:

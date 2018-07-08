@@ -14,7 +14,9 @@ import libarchive.adapters.archive_write_add_filter
 
 from libarchive.calls.archive_general import c_archive_error_string
 
-_logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
+
+_ASCII_ENCODING = 'ascii'
 
 def _archive_write_new():
     archive = libarchive.calls.archive_write.c_archive_write_new()
@@ -108,6 +110,8 @@ def _archive_write_add_filter_none(archive):
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_write_open_filename(archive, filepath):
+    filepath = filepath.encode(_ASCII_ENCODING)
+
     try:
         libarchive.calls.archive_write.c_archive_write_open_filename(
             archive,
@@ -198,7 +202,7 @@ def _create(opener,
     a = _archive_write_new()
     _set_write_context(a, format_code, filter_code)
 
-    _logger.debug("Opening archive (create).")
+    _LOGGER.debug("Opening archive (create).")
     opener(a)
 
 # Use the standard uid/gid lookup mechanisms.
@@ -211,6 +215,8 @@ def _create(opener,
     added = []
 
     for filepath in files:
+        filepath = filepath.encode(_ASCII_ENCODING)
+
         disk = libarchive.calls.archive_read.c_archive_read_disk_new()
         libarchive.calls.archive_read.c_archive_read_disk_open(
             disk,
@@ -258,7 +264,7 @@ def _create(opener,
         libarchive.calls.archive_read.c_archive_read_close(disk)
         libarchive.calls.archive_read.c_archive_read_free(disk)
 
-    _logger.debug("Closing archive (create).")
+    _LOGGER.debug("Closing archive (create).")
 
     _archive_write_close(a)
     _archive_write_free(a)

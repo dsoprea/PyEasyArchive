@@ -15,13 +15,15 @@ import libarchive.adapters.archive_read_support_format_all
 
 from libarchive.calls.archive_general import c_archive_error_string
 
-_logger = logging.getLogger(__name__)
+_ASCII_ENCODING = 'ascii'
 
-# TODO(dustin): We might have to switch most of our c_char_p references to 
-#               POINTER(c_char), since we're often not using zero-terminated 
+_LOGGER = logging.getLogger(__name__)
+
+# TODO(dustin): We might have to switch most of our c_char_p references to
+#               POINTER(c_char), since we're often not using zero-terminated
 #               strings.
 
-# TODO(dustin): Is there a cheap way to detect the archive format/filters, for 
+# TODO(dustin): Is there a cheap way to detect the archive format/filters, for
 #               utility reasons?
 
 def _archive_read_new():
@@ -56,10 +58,12 @@ def _archive_read_support_format_7zip(archive):
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_open_filename(archive, filepath, block_size_bytes):
+    filepath = filepath.encode(_ASCII_ENCODING)
+
     try:
         return libarchive.calls.archive_read.c_archive_read_open_filename(
-                archive, 
-                filepath, 
+                archive,
+                filepath,
                 block_size_bytes)
     except:
         message = c_archive_error_string(archive)
@@ -67,8 +71,8 @@ def _archive_read_open_filename(archive, filepath, block_size_bytes):
 
 def _archive_read_open_memory(archive, buffer_):
     libarchive.calls.archive_read.c_archive_read_open_memory(
-        archive, 
-        ctypes.cast(ctypes.c_char_p(buffer_), ctypes.c_void_p), 
+        archive,
+        ctypes.cast(ctypes.c_char_p(buffer_), ctypes.c_void_p),
         len(buffer_))
 
 @contextlib.contextmanager
@@ -76,7 +80,7 @@ def _archive_read_next_header(archive):
     entry = ctypes.c_void_p()
 
     r = libarchive.calls.archive_read.c_archive_read_next_header(
-            archive, 
+            archive,
             ctypes.byref(entry))
 
     if r == libarchive.constants.archive.ARCHIVE_OK:
@@ -108,7 +112,7 @@ def _archive_read_free(archive):
 def _archive_read_set_format(archive, code):
     try:
         return libarchive.calls.archive_read.c_archive_read_set_format(
-                archive, 
+                archive,
                 code)
     except:
         message = c_archive_error_string(archive)
@@ -139,7 +143,7 @@ def _archive_read_disk_open(archive, filepath):
 
 def _archive_read_next_header2(archive, entry):
     r = libarchive.calls.archive_read.c_archive_read_next_header2(
-            archive, 
+            archive,
             entry)
 
     if r not in (libarchive.constants.archive.ARCHIVE_OK,
@@ -147,7 +151,7 @@ def _archive_read_next_header2(archive, entry):
         message = c_archive_error_string(archive)
         raise ValueError("Archive iteration (read_next_header2) returned "
                          "error: (%d) [%s]" % (r, message))
-    
+
     return r
 
 def _archive_read_disk_descend(archive):
@@ -171,8 +175,8 @@ def _archive_read_data(archive, block_size=8192):
 
     while 1:
         num = libarchive.calls.archive_read.c_archive_read_data(
-                archive, 
-                buffer_.raw, 
+                archive,
+                buffer_.raw,
                 len(buffer_))
 
         if num == 0:
@@ -190,10 +194,10 @@ def _read_by_block(archive_res):
 
     while 1:
         r = libarchive.calls.archive_read.c_archive_read_data_block(
-                archive_res, 
-                ctypes.cast(ctypes.byref(buffer_), 
-                            ctypes.POINTER(ctypes.c_void_p)), 
-                ctypes.byref(num), 
+                archive_res,
+                ctypes.cast(ctypes.byref(buffer_),
+                            ctypes.POINTER(ctypes.c_void_p)),
+                ctypes.byref(num),
                 ctypes.byref(offset))
 
         if r == libarchive.constants.archive.ARCHIVE_OK:
@@ -206,7 +210,7 @@ def _read_by_block(archive_res):
             break
 
         else:
-            raise ValueError("Read failed (archive_read_data_block): (%d)" % 
+            raise ValueError("Read failed (archive_read_data_block): (%d)" %
                              (r,))
 
 
@@ -240,24 +244,24 @@ class _ArchiveEntryItState(_ArchiveEntryItReadable):
 
 def _set_read_context(archive_res, format_code=None, filter_code=None):
     if format_code is not None:
-        _logger.debug("Archive read-format is: (%d)", format_code)
+        _LOGGER.debug("Archive read-format is: (%d)", format_code)
 
         libarchive.adapters.archive_read_set_format.archive_read_set_format(
-            archive_res, 
+            archive_res,
             format_code)
     else:
-        _logger.debug("Archive read-format is: <ANY>")
+        _LOGGER.debug("Archive read-format is: <ANY>")
 
         libarchive.adapters.archive_read_support_format_all.\
             archive_read_support_format_all(archive_res)
 
     if filter_code is not None:
-        _logger.debug("Archive read-filter is: (%d)", filter_code)
+        _LOGGER.debug("Archive read-filter is: (%d)", filter_code)
 
         libarchive.adapters.archive_read_append_filter.\
             archive_read_append_filter(archive_res, filter_code)
     else:
-        _logger.debug("Archive read-filter is: <ANY>")
+        _LOGGER.debug("Archive read-filter is: <ANY>")
 
         libarchive.adapters.archive_read_support_filter_all.\
             archive_read_support_filter_all(archive_res)
@@ -291,27 +295,27 @@ def _enumerator(opener, entry_cls, format_code=None, filter_code=None):
 def file_enumerator(filepath, block_size=10240, *args, **kwargs):
     """Return an enumerator that knows how to read a physical file."""
 
-    _logger.debug("Enumerating through archive file: %s", filepath)
+    _LOGGER.debug("Enumerating through archive file: %s", filepath)
 
     def opener(archive_res):
-        _logger.debug("Opening from file (file_enumerator): %s", filepath)
+        _LOGGER.debug("Opening from file (file_enumerator): %s", filepath)
         _archive_read_open_filename(archive_res, filepath, block_size)
 
     if 'entry_cls' not in kwargs:
         kwargs['entry_cls'] = _ArchiveEntryItReadable
 
-    return _enumerator(opener, 
-                       *args, 
+    return _enumerator(opener,
+                       *args,
                        **kwargs)
 
 def memory_enumerator(buffer_, *args, **kwargs):
     """Return an enumerator that knows how to read raw memory."""
 
-    _logger.debug("Enumerating through (%d) bytes of archive data.", 
+    _LOGGER.debug("Enumerating through (%d) bytes of archive data.",
                   len(buffer_))
 
     def opener(archive_res):
-        _logger.debug("Opening from (%d) bytes (memory_enumerator).", 
+        _LOGGER.debug("Opening from (%d) bytes (memory_enumerator).",
                       len(buffer_))
 
         _archive_read_open_memory(archive_res, buffer_)
@@ -319,17 +323,17 @@ def memory_enumerator(buffer_, *args, **kwargs):
     if 'entry_cls' not in kwargs:
         kwargs['entry_cls'] = _ArchiveEntryItReadable
 
-    return _enumerator(opener, 
-                       *args, 
+    return _enumerator(opener,
+                       *args,
                        **kwargs)
 
 def file_reader(*args, **kwargs):
-    """Return an enumerator that knows how to read the data for entries from a 
+    """Return an enumerator that knows how to read the data for entries from a
     physical file.
     """
 
-    return file_enumerator(*args, 
-                           entry_cls=_ArchiveEntryItReadable, 
+    return file_enumerator(*args,
+                           entry_cls=_ArchiveEntryItReadable,
                            **kwargs)
 
 def memory_reader(*args, **kwargs):
@@ -337,16 +341,16 @@ def memory_reader(*args, **kwargs):
     memory.
     """
 
-    return memory_enumerator(*args, 
-                             entry_cls=_ArchiveEntryItReadable, 
+    return memory_enumerator(*args,
+                             entry_cls=_ArchiveEntryItReadable,
                              **kwargs)
 
 def _pour(opener, flags=0, *args, **kwargs):
     """A flexible pouring facility that knows how to enumerate entry data."""
 
-    with _enumerator(opener, 
-                     *args, 
-                     entry_cls=_ArchiveEntryItState, 
+    with _enumerator(opener,
+                     *args,
+                     entry_cls=_ArchiveEntryItState,
                      **kwargs) as r:
         ext = libarchive.calls.archive_write.c_archive_write_disk_new()
         libarchive.calls.archive_write.c_archive_write_disk_set_options(
@@ -361,7 +365,7 @@ def _pour(opener, flags=0, *args, **kwargs):
                 continue
 
             r = libarchive.calls.archive_write.c_archive_write_header(
-                    ext, 
+                    ext,
                     state.entry_res)
 
             buff = ctypes.c_void_p()
@@ -371,9 +375,9 @@ def _pour(opener, flags=0, *args, **kwargs):
             while 1:
                 r = libarchive.calls.archive_read.\
                         c_archive_read_data_block(
-                            state.reader_res, 
-                            ctypes.byref(buff), 
-                            ctypes.byref(size), 
+                            state.reader_res,
+                            ctypes.byref(buff),
+                            ctypes.byref(size),
                             ctypes.byref(offset))
 
                 if r == libarchive.constants.archive.ARCHIVE_EOF:
@@ -384,9 +388,9 @@ def _pour(opener, flags=0, *args, **kwargs):
                             "Pour failed: (%d) [%s]" % (r, message))
 
                 r = libarchive.calls.archive_write.c_archive_write_data_block(
-                        ext, 
-                        buff, 
-                        size, 
+                        ext,
+                        buff,
+                        size,
                         offset)
 
             r = libarchive.calls.archive_write.\
@@ -396,7 +400,7 @@ def file_pour(filepath, block_size=10240, *args, **kwargs):
     """Write physical files from entries."""
 
     def opener(archive_res):
-        _logger.debug("Opening from file (file_pour): %s", filepath)
+        _LOGGER.debug("Opening from file (file_pour): %s", filepath)
         _archive_read_open_filename(archive_res, filepath, block_size)
 
     return _pour(opener, *args, flags=0, **kwargs)
@@ -405,7 +409,7 @@ def memory_pour(buffer_, *args, **kwargs):
     """Yield data from entries."""
 
     def opener(archive_res):
-        _logger.debug("Opening from (%d) bytes (memory_pour).", len(buffer_))
+        _LOGGER.debug("Opening from (%d) bytes (memory_pour).", len(buffer_))
         _archive_read_open_memory(archive_res, buffer_)
 
     return _pour(opener, *args, flags=0, **kwargs)

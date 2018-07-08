@@ -14,7 +14,7 @@ _APP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 # TODO(dustin): Add tests for file and memory pouring.
 
 
-class TestRead(unittest.TestCase):
+class TestArchiveWrite(unittest.TestCase):
     def test_create_file(self):
         with libarchive.test_support.chdir(_APP_PATH):
             output_path = tempfile.mkdtemp()
@@ -28,7 +28,7 @@ class TestRead(unittest.TestCase):
                     'libarchive/resources/requirements.txt',
                 ]
 
-                libarchive.public.create_file(
+                libarchive.adapters.archive_write.create_file(
                     output_filepath,
                     libarchive.constants.ARCHIVE_FORMAT_7ZIP,
                     files)

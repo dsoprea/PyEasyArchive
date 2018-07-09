@@ -30,8 +30,9 @@ class TestArchiveWrite(unittest.TestCase):
 
                 libarchive.adapters.archive_write.create_file(
                     output_filepath,
-                    libarchive.constants.ARCHIVE_FORMAT_7ZIP,
-                    files)
+                    libarchive.constants.ARCHIVE_FORMAT_TAR,
+                    files,
+                    filter_code=libarchive.constants.ARCHIVE_FILTER_BZIP2)
 
                 assert \
                     os.path.exists(output_filepath) is True, \

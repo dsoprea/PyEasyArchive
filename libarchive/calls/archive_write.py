@@ -7,7 +7,7 @@ from libarchive.constants.archive import *
 def _check_zero_success(value):
     if value != ARCHIVE_OK:
         raise ValueError("Function returned failure: (%d)" % (value))
-    
+
     return value
 
 c_archive_write_new = libarchive.archive_write_new
@@ -82,9 +82,9 @@ c_archive_read_disk_set_standard_lookup.argtypes = [c_void_p]
 c_archive_read_disk_set_standard_lookup.restype = _check_zero_success
 
 c_archive_write_open_memory = libarchive.archive_write_open_memory
-c_archive_write_open_memory.argtypes = [c_void_p, 
-                                        c_void_p, 
-                                        c_size_t, 
+c_archive_write_open_memory.argtypes = [c_void_p,
+                                        c_void_p,
+                                        c_size_t,
                                         POINTER(c_size_t)]
 c_archive_write_open_memory.restype = _check_zero_success
 
@@ -107,3 +107,7 @@ c_archive_write_set_bytes_per_block.restype = _check_zero_success
 c_archive_write_set_bytes_in_last_block = libarchive.archive_write_set_bytes_in_last_block
 c_archive_write_set_bytes_in_last_block.argtypes = [c_void_p, c_int]
 c_archive_write_set_bytes_in_last_block.restype = _check_zero_success
+
+c_archive_write_disk_set_standard_lookup = libarchive.archive_write_disk_set_standard_lookup
+c_archive_write_disk_set_standard_lookup.argtypes = [c_void_p]
+c_archive_write_disk_set_standard_lookup.restype = _check_zero_success

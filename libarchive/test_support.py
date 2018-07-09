@@ -45,6 +45,7 @@ def test_archive():
 
         try:
             files = [
+                'README.rst',
                 'libarchive/resources/README.rst',
                 'libarchive/resources/requirements.txt',
             ]

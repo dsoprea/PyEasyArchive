@@ -12,7 +12,7 @@ def _archive_entry_pathname(entry):
     if filepath is None:
         raise ValueError("Could not get entry file-path.")
 
-    return filepath.decode('ascii')
+    return filepath.decode(_ASCII_ENCODING)
 
 def archive_entry_new():
     entry = libarchive.calls.archive_entry.c_archive_entry_new()
@@ -30,6 +30,9 @@ def _archive_entry_free(entry):
 def _archive_entry_size(entry):
     return libarchive.calls.archive_entry.c_archive_entry_size(entry)
 
+def _archive_entry_set_size(entry, size):
+    return libarchive.calls.archive_entry.c_archive_entry_set_size(entry, size)
+
 def _archive_entry_set_pathname(entry, name):
     name = name.encode(_ASCII_ENCODING)
 
@@ -40,11 +43,24 @@ def _archive_entry_set_pathname(entry, name):
 def _archive_entry_filetype(entry):
     return libarchive.calls.archive_entry.c_archive_entry_filetype(entry)
 
+def _archive_entry_set_filetype(entry, filetype):
+    return libarchive.calls.archive_entry.c_archive_entry_set_filetype(entry, filetype)
+
 def _archive_entry_mtime(entry):
     return libarchive.calls.archive_entry.c_archive_entry_mtime(entry)
 
 def _archive_entry_perm(entry):
     return libarchive.calls.archive_entry.c_archive_entry_perm(entry)
+
+def _archive_entry_symlink(entry):
+    encoded = libarchive.calls.archive_entry.c_archive_entry_symlink(entry)
+    decoded = encoded.decode(_ASCII_ENCODING)
+
+    return decoded
+
+def _archive_entry_set_symlink(entry, target_filepath):
+    encoded = target_filepath.encode(_ASCII_ENCODING)
+    return libarchive.calls.archive_entry.c_archive_entry_set_symlink(entry, encoded)
 
 
 class ArchiveEntry(object):
@@ -58,10 +74,20 @@ class ArchiveEntry(object):
 #        _archive_entry_free(self.__entry_res)
 
     def __str__(self):
-        return self.pathname
+        suffix_parts = []
+        if self.filetype.IFLNK is True:
+            suffix_parts.append('TARGET-PATH=[{}]'.format(self.symlink_targetpath))
 
-    def __repr__(self):
-        return ('[%s] SIZE=(%d)' % (self.pathname, self.size))
+        if suffix_parts:
+            suffix = ' ' + ' '.join(suffix_parts)
+        else:
+            suffix = ''
+
+        return \
+            'ArchiveEntry<NAME=[{}] SIZE=({}){}>'.format(
+            self.pathname, self.size, suffix)
+
+    __repr__ = __str__
 
     @property
     def reader_res(self):
@@ -83,19 +109,29 @@ class ArchiveEntry(object):
 
     @property
     def pathname(self):
+        """Path in the archive."""
+
         return _archive_entry_pathname(self.__entry_res)
 
     @pathname.setter
     def pathname(self, value):
+        """Path in the archive."""
+
         _archive_entry_set_pathname(self.__entry_res, value)
 
     @property
     def sourcepath(self):
+        """Path on the disk."""
+
         return _archive_entry_sourcepath(self.__entry_res)
 
     @property
     def size(self):
         return _archive_entry_size(self.__entry_res)
+
+    @size.setter
+    def size(self, size):
+        _archive_entry_set_size(self.__entry_res, size)
 
     @property
     def filetype(self):
@@ -106,6 +142,11 @@ class ArchiveEntry(object):
 
         return libarchive.types.archive_entry.ENTRY_FILETYPE(**flags)
 
+    @filetype.setter
+    def filetype(self, filetype):
+        filetype_int = libarchive.types.archive_entry.ef_to_int(filetype)
+        _archive_entry_set_filetype(self.__entry_res, filetype_int)
+
     @property
     def mtime(self):
         return datetime.datetime.fromtimestamp(
@@ -114,3 +155,11 @@ class ArchiveEntry(object):
     @property
     def perm(self):
         return _archive_entry_perm(self.__entry_res)
+
+    @property
+    def symlink_targetpath(self):
+        return _archive_entry_symlink(self.__entry_res)
+
+    @symlink_targetpath.setter
+    def symlink_targetpath(self, target_filepath):
+        return _archive_entry_set_symlink(self.__entry_res, target_filepath)

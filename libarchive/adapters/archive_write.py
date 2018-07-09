@@ -1,7 +1,7 @@
 import sys
 import ctypes
 import logging
-import os.path
+import os
 
 import libarchive.constants.archive
 import libarchive.exception
@@ -11,6 +11,7 @@ import libarchive.calls.archive_read
 import libarchive.adapters.archive_entry
 import libarchive.adapters.archive_write_set_format
 import libarchive.adapters.archive_write_add_filter
+import libarchive.types.archive_entry
 
 from libarchive.calls.archive_general import c_archive_error_string
 
@@ -70,6 +71,9 @@ def _archive_write_free(archive):
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_write_data(archive, data):
+    """Write data to archive. This will only be called with a non-empty string.
+    """
+
     n = libarchive.calls.archive_write.c_archive_write_data(
             archive,
             ctypes.cast(ctypes.c_char_p(data), ctypes.c_void_p),
@@ -237,27 +241,38 @@ def _create(opener,
                         "during create: (%d) [%s]" %
                         (r, message))
 
-            wrapped = libarchive.adapters.archive_entry.ArchiveEntry(
+            ae = libarchive.adapters.archive_entry.ArchiveEntry(
                         disk,
                         entry)
 
-            # Strip leading slash so it stores as a relative path.
-            if os.path.isabs(wrapped.pathname) is True:
-                wrapped.pathname = wrapped.pathname[1:]
+            # print("WRITING: [{}] {}".format(ae, ae.filetype))
 
-            added.append(wrapped)
+            # Strip leading slash so it stores as a relative path.
+            if os.path.isabs(ae.pathname) is True:
+                ae.pathname = ae.pathname[1:]
+
+            added.append(ae)
 
             libarchive.calls.archive_read.c_archive_read_disk_descend(disk)
 
+            # NOTE: There's a `archive_entry_set_size()` on the underlying
+            # entry type, but it doesn't appear to be necessary. The sizes
+            # report perfectly fine with the [probably automatic] counting that
+            # occurs just with `_archive_write_data()`.
+
             r = _archive_write_header(a, entry)
 
-            with open(wrapped.sourcepath, 'rb') as f:
-                while 1:
-                    data = f.read(block_size)
-                    if not data:
-                        break
+            if ae.filetype.IFLNK is True and os.path.islink(ae.sourcepath) is True:
+                target_path = os.readlink(ae.sourcepath)
+                ae.symlink_targetpath = target_path
+            else:
+                with open(ae.sourcepath, 'rb') as f:
+                    while 1:
+                        data = f.read(block_size)
+                        if not data:
+                            break
 
-                    _archive_write_data(a, data)
+                        _archive_write_data(a, data)
 
             libarchive.calls.archive_entry.c_archive_entry_free(entry)
 

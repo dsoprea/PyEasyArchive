@@ -17,8 +17,7 @@ class TestArchiveRead(unittest.TestCase):
     def test_enumerate_from_file(self):
         with libarchive.test_support.test_archive() as filepath:
             with libarchive.adapters.archive_read.file_enumerator(filepath) as e:
-                for entry in e:
-                    pass
+                list(e)
 
     def test_enumerate_from_memory(self):
         with libarchive.test_support.test_archive() as filepath:
@@ -69,3 +68,22 @@ class TestArchiveRead(unittest.TestCase):
                             with open(filepath, 'wb') as f:
                                 for block in entry.get_blocks():
                                     f.write(block)
+
+    def test_read_symlinks(self):
+        with libarchive.test_support.test_archive() as filepath:
+            with libarchive.adapters.archive_read.file_enumerator(filepath) as e:
+
+                # The test-archive already includes a symlink.
+
+                index = {
+                    entry.pathname: entry.symlink_targetpath
+                    for entry
+                    in e
+                    if entry.filetype.IFLNK is True
+                }
+
+                expected = {
+                    u'README.rst': u'libarchive/resources/README.rst',
+                }
+
+                self.assertEquals(index, expected)

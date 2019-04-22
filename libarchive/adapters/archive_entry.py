@@ -5,14 +5,12 @@ import libarchive.constants.archive_entry
 import libarchive.types.archive_entry
 import libarchive.calls.archive_entry
 
-_ASCII_ENCODING = 'ascii'
-
 def _archive_entry_pathname(entry):
     filepath = libarchive.calls.archive_entry.c_archive_entry_pathname(entry)
     if filepath is None:
         raise ValueError("Could not get entry file-path.")
 
-    return filepath.decode(_ASCII_ENCODING)
+    return filepath.decode('utf-8')
 
 def archive_entry_new():
     entry = libarchive.calls.archive_entry.c_archive_entry_new()
@@ -22,7 +20,8 @@ def archive_entry_new():
     return entry
 
 def _archive_entry_sourcepath(entry):
-    return libarchive.calls.archive_entry.c_archive_entry_sourcepath(entry)
+    raw = libarchive.calls.archive_entry.c_archive_entry_sourcepath(entry)
+    return raw.decode('utf-8')
 
 def _archive_entry_free(entry):
     libarchive.calls.archive_entry.c_archive_entry_free(entry)
@@ -34,7 +33,7 @@ def _archive_entry_set_size(entry, size):
     return libarchive.calls.archive_entry.c_archive_entry_set_size(entry, size)
 
 def _archive_entry_set_pathname(entry, name):
-    name = name.encode(_ASCII_ENCODING)
+    name = name.encode('utf-8')
 
     libarchive.calls.archive_entry.c_archive_entry_set_pathname(
         entry,
@@ -54,12 +53,12 @@ def _archive_entry_perm(entry):
 
 def _archive_entry_symlink(entry):
     encoded = libarchive.calls.archive_entry.c_archive_entry_symlink(entry)
-    decoded = encoded.decode(_ASCII_ENCODING)
+    decoded = encoded.decode('utf-8')
 
     return decoded
 
 def _archive_entry_set_symlink(entry, target_filepath):
-    encoded = target_filepath.encode(_ASCII_ENCODING)
+    encoded = target_filepath.encode('utf-8')
     return libarchive.calls.archive_entry.c_archive_entry_set_symlink(entry, encoded)
 
 

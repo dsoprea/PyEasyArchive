@@ -17,8 +17,6 @@ from libarchive.calls.archive_general import c_archive_error_string
 
 _LOGGER = logging.getLogger(__name__)
 
-_ASCII_ENCODING = 'ascii'
-
 def _archive_write_new():
     archive = libarchive.calls.archive_write.c_archive_write_new()
     if archive is None:
@@ -114,7 +112,7 @@ def _archive_write_add_filter_none(archive):
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_write_open_filename(archive, filepath):
-    filepath = filepath.encode(_ASCII_ENCODING)
+    filepath = filepath.encode('utf-8')
 
     try:
         libarchive.calls.archive_write.c_archive_write_open_filename(
@@ -219,7 +217,7 @@ def _create(opener,
     added = []
 
     for filepath in files:
-        filepath = filepath.encode(_ASCII_ENCODING)
+        filepath = filepath.encode('utf-8')
 
         disk = libarchive.calls.archive_read.c_archive_read_disk_new()
         libarchive.calls.archive_read.c_archive_read_disk_open(

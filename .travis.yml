@@ -6,10 +6,15 @@ python:
   - "3.4"
   - "3.5"
 
-dist: trusty
+dist: xenial
 
 before_install:
-  - sudo apt-get install -y libarchive13
+  - apt-cache policy libarchive13
+  - sudo apt-get install -y libarchive13=3.2.1-2~ubuntu16.04.1
+  - apt-cache show libarchive13 | grep Version
+  - dpkg -L libarchive13
+  - sudo apt-get install -y binutils
+  - objdump -T /usr/lib/x86_64-linux-gnu/libarchive.so.13
   - sudo ln -s /usr/lib/x86_64-linux-gnu/libarchive.so.13 /usr/lib/x86_64-linux-gnu/libarchive.so
 install:
   - pip install -r requirements.txt

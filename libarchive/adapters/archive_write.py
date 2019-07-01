@@ -167,13 +167,6 @@ def _archive_write_open(archive, context, open_cb, write_cb, close_cb):
         libarchive.types.archive.ARCHIVE_WRITE_CALLBACK(write_cb),
         libarchive.types.archive.ARCHIVE_CLOSE_CALLBACK(close_cb))
 
-def _archive_write_open_memory(archive, buffer_, consumed_size_ptr):
-    libarchive.calls.archive_write.c_archive_write_open_memory(
-        archive,
-        buffer_,
-        len(buffer_),
-        consumed_size_ptr)
-
 def _archive_write_set_bytes_per_block(archive, bytes_per_block):
     libarchive.calls.archive_write.c_archive_write_set_bytes_per_block(
         archive,
@@ -329,4 +322,3 @@ def create_generic(write_cb,
                             close_cb_internal)
 
     return _create(opener, *args, **kwargs)
-

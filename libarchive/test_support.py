@@ -38,16 +38,27 @@ def chdir(path):
 @contextlib.contextmanager
 def test_archive():
     with chdir(_APP_PATH):
-        output_path = tempfile.mkdtemp()
+        temp_path = tempfile.mkdtemp()
 
         output_filename = 'archive.7z'
-        output_filepath = os.path.join(output_path, output_filename)
+        output_filepath = os.path.join(temp_path, output_filename)
+
+        # Also, write a source file with a unicode name that we can add to
+        # test internation support.
+        unicode_test_filepath = \
+            os.path.join(
+                temp_path,
+                "\u0905\u0906\u0907\u0536\u0537\u0538\u0539\u053a\u053b\uac12\uac13\uac14\uac15\uac16")
+
+        with open(unicode_test_filepath, 'w') as f:
+            f.write("test data \uf91f\uf920\uf921\uf922\uf923\uf924\uf925")
 
         try:
             files = [
                 'README.rst',
                 'libarchive/resources/README.rst',
                 'libarchive/resources/requirements.txt',
+                unicode_test_filepath,
             ]
 
             libarchive.public.create_file(
@@ -62,6 +73,6 @@ def test_archive():
             yield output_filepath
         finally:
             try:
-                shutil.rmtree(output_path)
+                shutil.rmtree(temp_path)
             except:
                 pass

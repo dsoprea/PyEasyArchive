@@ -327,6 +327,46 @@ def memory_enumerator(buffer_, *args, **kwargs):
                        *args,
                        **kwargs)
 
+def stream_enumerator(io, buffer_size=1048576, *args, **kwargs):
+    buf = ctypes.create_string_buffer(buffer_size)
+    
+    def archive_read(archive, client_data, out):
+        try:
+            bytes_read = io.readinto(buf)
+            out.contents.contents = buf
+            return bytes_read
+        except (IOError, OSError) as e:
+            _LOGGER.debug("Exception during stream read: %s", e)
+            return libarchive.constants.archive.ARCHIVE_FATAL
+
+    def archive_seek(archive, client_data, offset, whence):
+        try:
+            return io.seek(offset, whence)
+        except (IOError, OSError) as e:
+            _LOGGER.debug("Exception during stream seek: %s", e)
+            return libarchive.constants.archive.ARCHIVE_FATAL
+
+    def archive_close(archive, client_data):
+        try:
+            io.close()
+            return libarchive.constants.archive.ARCHIVE_OK
+        except (IOError, OSError) as e:
+            _LOGGER.debug("Exception during stream close: %s", e)
+            return libarchive.constants.archive.ARCHIVE_FATAL
+
+    read_func = libarchive.calls.archive_read.c_archive_read_func(archive_read)
+    seek_func = libarchive.calls.archive_read.c_archive_seek_func(archive_seek)
+    close_func = libarchive.calls.archive_read.c_archive_close_func(archive_close)
+    
+    def opener(archive_res):
+        libarchive.calls.archive_read.c_archive_read_set_seek_callback(archive_res, seek_func)
+        libarchive.calls.archive_read.c_archive_read_open(archive_res, None, None, read_func, close_func)
+
+    if 'entry_cls' not in kwargs:
+        kwargs['entry_cls'] = _ArchiveEntryItReadable
+        
+    return _enumerator(opener, *args, **kwargs)
+
 def file_reader(*args, **kwargs):
     """Return an enumerator that knows how to read the data for entries from a
     physical file.
@@ -344,6 +384,12 @@ def memory_reader(*args, **kwargs):
     return memory_enumerator(*args,
                              entry_cls=_ArchiveEntryItReadable,
                              **kwargs)
+
+def stream_reader(io, *args, **kwargs):
+    """Return an enumerator that can read from a Python IOBase stream.
+    """
+
+    return stream_enumerator(io, *args, **kwargs)
 
 def _pour(opener, flags=0, *args, **kwargs):
     """A flexible pouring facility that knows how to enumerate entry data."""

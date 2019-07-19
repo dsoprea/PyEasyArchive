@@ -48,6 +48,7 @@ Done   Task
 =====  =================================================
   X    Read entries from physical file
   X    Read entries from archive hosted in memory buffer
+  X    Read entries from a Python IOBase stream
   X    Write physical files from archive
   X    Load memory buffer from archive
   X    Populate physical archive from physical files
@@ -86,6 +87,22 @@ To read files from a physical archive::
             with open('/tmp/' + str(entry), 'wb') as f:
                 for block in entry.get_blocks():
                     f.write(block)
+
+To read files from an IOBase stream::
+
+    import libarchive.public
+
+    with open('test.7z', 'rb') as io:
+		with libarchive.public.stream_reader(io) as e:
+			for entry in e:
+				with open('/tmp/' + str(entry), 'wb') as f:
+					for block in entry.get_blocks():
+						f.write(block)
+
+If the archive format is such that it requires seeking during load, then the stream must be seekable.
+
+Also note that libarchive's automatic detection only really works with archive formats in the absence of filename information. So, if streaming decompression of a non-archive format such as tar then it may be necessary to specify the format explicitly, as detailed below. 
+
 
 To read files from memory::
 

@@ -22,6 +22,14 @@ c_archive_read_support_format_all = libarchive.archive_read_support_format_all
 c_archive_read_support_format_all.argtypes = [c_void_p]
 c_archive_read_support_format_all.restype = _check_zero_success
 
+c_archive_read_func = CFUNCTYPE(c_ssize_t, c_void_p, c_void_p, POINTER(POINTER(c_char)))
+c_archive_seek_func = CFUNCTYPE(c_longlong, c_void_p, c_void_p, c_longlong, c_int)
+c_archive_close_func = CFUNCTYPE(c_int, c_void_p, c_void_p)
+
+c_archive_read_open = libarchive.archive_read_open
+c_archive_read_open.argtypes = [c_void_p, c_void_p, c_void_p, c_archive_read_func, c_archive_close_func]
+c_archive_read_open.restype = c_int
+
 c_archive_read_open_filename = libarchive.archive_read_open_filename
 c_archive_read_open_filename.argtypes = [c_void_p, c_char_p, c_size_t]
 c_archive_read_open_filename.restype = _check_zero_success
@@ -84,3 +92,15 @@ c_archive_read_data.restype = c_ssize_t
 c_archive_read_data_block = libarchive.archive_read_data_block
 c_archive_read_data_block.argtypes = [c_void_p, POINTER(c_void_p), POINTER(c_size_t), POINTER(c_longlong)]
 c_archive_read_data_block.restype = c_int
+
+c_archive_read_set_read_callback = libarchive.archive_read_set_read_callback
+c_archive_read_set_read_callback.argtypes = [c_void_p, c_archive_read_func]
+c_archive_read_set_read_callback.restype = c_int
+
+c_archive_read_set_seek_callback = libarchive.archive_read_set_seek_callback
+c_archive_read_set_seek_callback.argtypes = [c_void_p, c_archive_seek_func]
+c_archive_read_set_seek_callback.restype = c_int
+
+c_archive_read_set_close_callback = libarchive.archive_read_set_close_callback
+c_archive_read_set_close_callback.argtypes = [c_void_p, c_archive_close_func]
+c_archive_read_set_close_callback.restype = c_int

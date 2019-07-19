@@ -36,7 +36,13 @@ def chdir(path):
         os.chdir(original_path)
 
 @contextlib.contextmanager
-def test_archive():
+def test_files():
+    """
+    Returns a tuple have all input test files and the output archive path.
+
+    :return: Tuple (input_file_paths, output_archive_path)
+    """
+    
     with chdir(_APP_PATH):
         temp_path = tempfile.mkdtemp()
 
@@ -70,9 +76,14 @@ def test_archive():
                 os.path.exists(output_filepath) is True, \
                 "Test archive was not created correctly."
 
-            yield output_filepath
+            yield (files, output_filepath)
         finally:
             try:
                 shutil.rmtree(temp_path)
             except:
                 pass
+
+@contextlib.contextmanager
+def test_archive():
+    with test_files() as (_, archive_path):
+        yield archive_path

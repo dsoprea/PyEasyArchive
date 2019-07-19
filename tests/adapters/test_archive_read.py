@@ -87,3 +87,24 @@ class TestArchiveRead(unittest.TestCase):
                 }
 
                 self.assertEquals(index, expected)
+
+    def test_read_from_stream(self):
+        with libarchive.test_support.test_files() as (infiles, archivepath):
+            with open(archivepath, 'rb') as io_in:
+                with libarchive.adapters.archive_read.stream_enumerator(io_in) as e:
+                    entries = {entry.pathname: (entry.filetype, list(entry.get_blocks())) for entry in e}
+
+            for path in infiles:
+                # At some point during compression, the root separator is stripped from absolute paths 
+                self.assertIn(path.lstrip('/'), entries)
+
+                filetype, blocks = entries[path.lstrip('/')]
+                filedata = bytes()
+                for block in blocks:
+                    filedata += block
+                    
+                if filetype.IFLNK:
+                    self.assertEqual(filedata, bytes())
+                else:
+                    with open(path, 'rb') as io_in:
+                        self.assertEqual(filedata, io_in.read())

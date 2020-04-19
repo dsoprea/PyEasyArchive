@@ -20,6 +20,6 @@ before_install:
 install:
   - pip install -r requirements.txt
   - pip install coveralls
-script: nosetests -s -v --with-coverage --cover-package=libarchive
+script: nose2 -v --with-coverage --coverage libarchive
 after_success:
   - coveralls

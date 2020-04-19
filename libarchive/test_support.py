@@ -55,8 +55,8 @@ def test_archive():
 
         try:
             files = [
-                'README.rst',
-                'libarchive/resources/README.rst',
+                'README.md',
+                'libarchive/resources/README.md',
                 'libarchive/resources/requirements.txt',
                 unicode_test_filepath,
             ]

@@ -83,7 +83,7 @@ class TestArchiveRead(unittest.TestCase):
                 }
 
                 expected = {
-                    u'README.rst': u'libarchive/resources/README.rst',
+                    u'README.md': u'libarchive/resources/README.md',
                 }
 
                 self.assertEquals(index, expected)

@@ -1,3 +1,3 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
-nosetests -s -v tests
+nose2 -v tests

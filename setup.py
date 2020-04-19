@@ -21,7 +21,7 @@ import libarchive
 
 app_path = os.path.dirname(libarchive.__file__)
 
-with open(os.path.join(app_path, 'resources', 'README.rst')) as f:
+with open(os.path.join(app_path, 'resources', 'README.md')) as f:
       long_description = f.read()
 
 with open(os.path.join(app_path, 'resources', 'requirements.txt')) as f:
@@ -34,6 +34,7 @@ setuptools.setup(
     version=libarchive.__version__,
     description=description,
     long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[],
     keywords='archive libarchive 7z tar bz2 zip gz',
     author='Dustin Oprea',
@@ -45,7 +46,7 @@ setuptools.setup(
     zip_safe=False,
     package_data={
         'libarchive': [
-            'resources/README.rst',
+            'resources/README.md',
             'resources/requirements.txt',
         ],
     },

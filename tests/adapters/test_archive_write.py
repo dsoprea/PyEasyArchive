@@ -24,7 +24,7 @@ class TestArchiveWrite(unittest.TestCase):
 
             try:
                 files = [
-                    'libarchive/resources/README.rst',
+                    'libarchive/resources/README.md',
                     'libarchive/resources/requirements.txt',
                 ]
 
@@ -47,7 +47,7 @@ class TestArchiveWrite(unittest.TestCase):
                     pass
 
             expected = [
-                'libarchive/resources/README.rst',
+                'libarchive/resources/README.md',
                 'libarchive/resources/requirements.txt',
             ]
 
@@ -72,7 +72,7 @@ class TestArchiveWrite(unittest.TestCase):
 
             try:
                 files = [
-                    'libarchive/resources/README.rst',
+                    'libarchive/resources/README.md',
                     'libarchive/resources/requirements.txt',
                     unicode_test_filepath,
                 ]
@@ -96,7 +96,7 @@ class TestArchiveWrite(unittest.TestCase):
                     pass
 
             expected = [
-                'libarchive/resources/README.rst',
+                'libarchive/resources/README.md',
                 'libarchive/resources/requirements.txt',
                 unicode_test_filepath.lstrip(os.sep),
             ]

@@ -13,7 +13,7 @@ import libarchive.adapters.archive_read_support_filter_all
 import libarchive.adapters.archive_read_set_format
 import libarchive.adapters.archive_read_support_format_all
 
-from libarchive.calls.archive_general import c_archive_error_string
+from libarchive.calls.archive_general import get_error_string
 
 _ASCII_ENCODING = 'ascii'
 
@@ -38,7 +38,7 @@ def _archive_read_support_filter_all(archive):
         return libarchive.calls.archive_read.c_archive_read_support_filter_all(
                 archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_support_format_all(archive):
@@ -46,7 +46,7 @@ def _archive_read_support_format_all(archive):
         return libarchive.calls.archive_read.c_archive_read_support_format_all(
                 archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_support_format_7zip(archive):
@@ -54,7 +54,7 @@ def _archive_read_support_format_7zip(archive):
         return libarchive.calls.archive_read.\
                 c_archive_read_support_format_7zip(archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_open_filename(archive, filepath, block_size_bytes):
@@ -66,7 +66,7 @@ def _archive_read_open_filename(archive, filepath, block_size_bytes):
                 filepath,
                 block_size_bytes)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_open_memory(archive, buffer_):
@@ -88,7 +88,7 @@ def _archive_read_next_header(archive):
     elif r == libarchive.constants.archive.ARCHIVE_EOF:
         yield None
     else:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise ValueError("Archive iteration (read_next_header) returned "
                          "error: (%d) [%s]" % (r, message))
 
@@ -99,14 +99,14 @@ def _archive_read_data_skip(archive):
     try:
         return libarchive.calls.archive_read.c_archive_read_data_skip(archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_free(archive):
     try:
         return libarchive.calls.archive_read.c_archive_read_free(archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_set_format(archive, code):
@@ -115,7 +115,7 @@ def _archive_read_set_format(archive, code):
                 archive,
                 code)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_disk_new():
@@ -130,7 +130,7 @@ def _archive_read_disk_set_standard_lookup(archive):
         return libarchive.calls.archive_read.\
                 c_archive_read_disk_set_standard_lookup(archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_disk_open(archive, filepath):
@@ -138,7 +138,7 @@ def _archive_read_disk_open(archive, filepath):
         return libarchive.calls.archive_read.c_archive_read_disk_open(
                 archive, filepath)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_next_header2(archive, entry):
@@ -148,7 +148,7 @@ def _archive_read_next_header2(archive, entry):
 
     if r not in (libarchive.constants.archive.ARCHIVE_OK,
                  libarchive.constants.archive.ARCHIVE_EOF):
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise ValueError("Archive iteration (read_next_header2) returned "
                          "error: (%d) [%s]" % (r, message))
 
@@ -160,14 +160,14 @@ def _archive_read_disk_descend(archive):
 
     if result not in (libarchive.constants.archive.ARCHIVE_OK,
                       libarchive.constants.archive.ARCHIVE_WARN):
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_close(archive):
     try:
         return libarchive.calls.archive_read.c_archive_read_close(archive)
     except:
-        message = c_archive_error_string(archive)
+        message = get_error_string(archive)
         raise libarchive.exception.ArchiveError(message)
 
 def _archive_read_data(archive, block_size=8192):
@@ -182,7 +182,7 @@ def _archive_read_data(archive, block_size=8192):
         if num == 0:
             break
         elif num < 0:
-            message = c_archive_error_string(archive)
+            message = get_error_string(archive)
             raise libarchive.exception.ArchiveError(message)
 
         yield buffer_.value[0:num.value]
@@ -383,7 +383,7 @@ def _pour(opener, flags=0, *args, **kwargs):
                 if r == libarchive.constants.archive.ARCHIVE_EOF:
                     break
                 elif r != libarchive.constants.archive.ARCHIVE_OK:
-                    message = c_archive_error_string(state.reader_res)
+                    message = get_error_string(state.reader_res)
                     raise libarchive.exception.ArchiveError(
                             "Pour failed: (%d) [%s]" % (r, message))
 

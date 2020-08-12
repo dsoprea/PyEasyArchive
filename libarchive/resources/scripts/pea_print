@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+_APP_PATH = \
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            '..', '..', '..'))
+
+sys.path.insert(0, _APP_PATH)
+
+import argparse
+
+import libarchive.adapters.archive_read
+
+def _main(args):
+    with libarchive.adapters.archive_read.file_reader(args.filepath) as fr:
+        for entry in fr:
+            print(entry.pathname)
+
+def _get_args():
+    p = argparse.ArgumentParser()
+
+    p.add_argument(
+        'filepath',
+        help="File-path of archive to print")
+
+    args = p.parse_args()
+    return args
+
+if __name__ == '__main__':
+    args = _get_args()
+    _main(args)

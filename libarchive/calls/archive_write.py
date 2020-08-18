@@ -22,6 +22,14 @@ c_archive_write_disk_set_options = libarchive.archive_write_disk_set_options
 c_archive_write_disk_set_options.argtypes = [c_void_p, c_int]
 c_archive_write_disk_set_options.restype = _check_zero_success
 
+c_archive_write_set_options = libarchive.archive_write_set_options
+c_archive_write_set_options.argtypes = [c_void_p, c_char_p]
+c_archive_write_set_options.restype = _check_zero_success
+
+c_archive_write_set_passphrase = libarchive.archive_write_set_passphrase
+c_archive_write_set_passphrase.argtypes = [c_void_p, c_char_p]
+c_archive_write_set_passphrase.restype = c_int
+
 c_archive_write_header = libarchive.archive_write_header
 c_archive_write_header.argtypes = [c_void_p, c_void_p]
 c_archive_write_header.restype = _check_zero_success

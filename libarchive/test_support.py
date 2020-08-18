@@ -36,11 +36,14 @@ def chdir(path):
         os.chdir(original_path)
 
 @contextlib.contextmanager
-def test_archive():
+def test_archive(passphrase=None, encryption="traditional"):
     with chdir(_APP_PATH):
         temp_path = tempfile.mkdtemp()
 
-        output_filename = 'archive.7z'
+        if passphrase is not None:
+            output_filename = 'archive.7z'
+        else:
+            output_filename = 'archive.zip'
         output_filepath = os.path.join(temp_path, output_filename)
 
         # Also, write a source file with a unicode name that we can add to
@@ -61,10 +64,19 @@ def test_archive():
                 unicode_test_filepath,
             ]
 
-            libarchive.public.create_file(
-                output_filepath,
-                libarchive.constants.ARCHIVE_FORMAT_7ZIP,
-                files)
+            if passphrase is not None:
+                options = "zip:encryption={}".format(encryption)
+                libarchive.public.create_file(
+                    output_filepath,
+                    libarchive.constants.ARCHIVE_FORMAT_7ZIP,
+                    files,
+                    options=options,
+                    passphrase=passphrase)
+            else:
+                libarchive.public.create_file(
+                    output_filepath,
+                    libarchive.constants.ARCHIVE_FORMAT_ZIP,
+                    files)
 
             assert \
                 os.path.exists(output_filepath) is True, \

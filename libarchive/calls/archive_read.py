@@ -84,3 +84,7 @@ c_archive_read_data.restype = c_ssize_t
 c_archive_read_data_block = libarchive.archive_read_data_block
 c_archive_read_data_block.argtypes = [c_void_p, POINTER(c_void_p), POINTER(c_size_t), POINTER(c_longlong)]
 c_archive_read_data_block.restype = c_int
+
+c_archive_read_add_passphrase = libarchive.archive_read_add_passphrase
+c_archive_read_add_passphrase.argtypes = [c_void_p, c_char_p]
+c_archive_read_add_passphrase.restype = c_int

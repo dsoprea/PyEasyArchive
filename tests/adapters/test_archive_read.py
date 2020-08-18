@@ -14,10 +14,27 @@ _APP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 
 class TestArchiveRead(unittest.TestCase):
+    def _test_enumerate_from_file(self, passphrase=None, encryption="traditional"):
+        if passphrase is not None:
+            with libarchive.test_support.test_archive(passphrase, encryption) as filepath:
+                with libarchive.adapters.archive_read.file_enumerator(filepath, passphrases=[passphrase]) as e:
+                    list(e)
+        else:
+            with libarchive.test_support.test_archive() as filepath:
+                with libarchive.adapters.archive_read.file_enumerator(filepath) as e:
+                    list(e)
+
     def test_enumerate_from_file(self):
-        with libarchive.test_support.test_archive() as filepath:
-            with libarchive.adapters.archive_read.file_enumerator(filepath) as e:
-                list(e)
+        self._test_enumerate_from_file()
+
+    def test_enumerate_from_file_with_passphrase_traditional(self):
+        self._test_enumerate_from_file(passphrase="test_passphrase")
+
+    def test_enumerate_from_file_with_passphrase_aes128(self):
+        self._test_enumerate_from_file(passphrase="test_passphrase", encryption="aes128")
+
+    def test_enumerate_from_file_with_passphrase_aes256(self):
+        self._test_enumerate_from_file(passphrase="test_passphrase", encryption="aes256")
 
     def test_enumerate_from_memory(self):
         with libarchive.test_support.test_archive() as filepath:

@@ -209,6 +209,9 @@ def _read_by_block(archive_res):
         elif r == libarchive.constants.archive.ARCHIVE_EOF:
             break
 
+        elif r < 0:
+            message = c_archive_error_string(archive_res)
+            raise libarchive.exception.ArchiveError(message)
         else:
             raise ValueError("Read failed (archive_read_data_block): (%d)" %
                              (r,))
